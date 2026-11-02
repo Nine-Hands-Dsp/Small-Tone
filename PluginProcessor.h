@@ -66,7 +66,7 @@ public:
     std::atomic<int> learnTarget { -1 };      // commande en attente d'un CC (-1 = pas de learn)
     std::atomic<int> lastLearned { -1 };      // pour l'affichage
     void resetMidiMap();
-    std::atomic<int> uiHeight { stui::heightDefault };
+    std::atomic<int> uiHeight { 0 };          // 0 = aucune taille enregistrée pour cette instance (taille par défaut choisie)
 
     // ----- infos pour l'interface
     std::atomic<float> lfoVisual { 0.5f }, delayVisual { 4.0f };

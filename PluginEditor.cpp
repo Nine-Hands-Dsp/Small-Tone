@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
+#include "WigaWindowSize.h"
 
 using namespace juce;
 
@@ -30,12 +31,17 @@ SmallToneEditor::SmallToneEditor (SmallToneProcessor& p)
 
     // taille : identique à Holyverb, jamais plus petite que la taille par défaut
     const double aspect = (double) art::W / (double) art::H;
-    const int h0 = jlimit (stui::heightDefault, stui::heightMax, proc.uiHeight.load());   // lu avant setResizeLimits (qui appelle resized)
+    // taille d'ouverture : celle enregistrée pour cette instance (projet) si elle existe,
+    // sinon celle choisie dans le menu « Default size (new windows) » (lue avant setResizeLimits, qui appelle resized)
+    const int saved = proc.uiHeight.load();
+    const int h0 = saved > 0 ? jlimit (stui::heightDefault, stui::heightMax, saved)
+                             : sizeHeight (WigaWindowSize::defaultIndex (JucePlugin_Name, numSizes));
     setResizable (true, true);
     setResizeLimits (roundToInt (stui::heightDefault * aspect), stui::heightDefault,
                      roundToInt (stui::heightMax * aspect), stui::heightMax);
     getConstrainer()->setFixedAspectRatio (aspect);
     setOpaque (true);                      // anti-gel : l'hôte ne redessine jamais ce qui est derrière la fenêtre
+    openHeight = h0;
     setSize (roundToInt (h0 * aspect), h0);
     rebuildScaledImages();
 
@@ -94,8 +100,16 @@ void SmallToneEditor::resized()
 {
     // anti-gel : jamais de setSize ici (mise à l'échelle Windows 125 / 150 % : l'hôte arrondit les tailles) ;
     // les limites du constrainer (jamais plus petit que la taille par défaut) suffisent
-    proc.uiHeight.store (jlimit (stui::heightDefault, stui::heightMax, getHeight()));
+    // taille de cette instance enregistrée seulement si elle a été changée (sinon : taille par défaut choisie)
+    if (proc.uiHeight.load() > 0 || (openHeight > 0 && std::abs (getHeight() - openHeight) > 2))
+        proc.uiHeight.store (jlimit (stui::heightDefault, stui::heightMax, getHeight()));
     resizeSettle = 4;              // les images seront refaites par le timer quand la taille ne bouge plus
+}
+
+int SmallToneEditor::sizeHeight (int idx)
+{
+    const int h[numSizes] = { stui::heightDefault, stui::height75, stui::height100 };
+    return h[jlimit (0, numSizes - 1, idx)];
 }
 
 void SmallToneEditor::setWindowHeight (int h)
@@ -515,11 +529,18 @@ void SmallToneEditor::showContextMenu (int learnIdx)
         save.addItem (300 + s, "User " + String (s) + (n.isNotEmpty() ? "  -  " + n + "  (overwrite)" : String()));
     }
 
-    PopupMenu size;
+    // Plugin size : taille de cette fenêtre + taille par défaut des nouvelles fenêtres (comme Octopus)
+    PopupMenu size, defSize;
     const int h = getHeight();
-    size.addItem (401, "60 % (default)", true, std::abs (h - stui::heightDefault) < 8);
-    size.addItem (403, "75 %", true, std::abs (h - stui::height75) < 8);
-    size.addItem (404, "100 %", true, std::abs (h - stui::height100) < 8);
+    const char* sizeNames[numSizes] = { "60 %", "75 %", "100 %" };
+    const int def = WigaWindowSize::defaultIndex (JucePlugin_Name, numSizes);
+    for (int i = 0; i < numSizes; ++i)
+    {
+        size.addItem (401 + i, String (sizeNames[i]) + (i == def ? "  (default)" : ""), true, std::abs (h - sizeHeight (i)) < 8);
+        defSize.addItem (420 + i, sizeNames[i], true, i == def);
+    }
+    size.addSeparator();
+    size.addSubMenu ("Default size (new windows)", defSize);
 
     auto flag = [this] (const char* id) { return proc.apvts.getRawParameterValue (id)->load() > 0.5f; };
     PopupMenu opt;
@@ -561,7 +582,7 @@ void SmallToneEditor::showContextMenu (int learnIdx)
     m.addSubMenu ("Load user preset", load);
     m.addSubMenu ("Save user preset", save);
     m.addSeparator();
-    m.addSubMenu ("Window size", size);
+    m.addSubMenu ("Plugin size", size);
     m.addSubMenu ("Options", opt);
     m.addSubMenu ("MIDI", midi);
 
@@ -575,10 +596,12 @@ void SmallToneEditor::showContextMenu (int learnIdx)
         }
         else if (r > 200 && r < 210) { if (proc.loadUserPreset (r - 200)) flash ("LOADED : " + proc.presetName.toUpperCase()); }
         else if (r > 300 && r < 310) askUserPresetName (r - 300);
-        else if (r == 401) setWindowHeight (stui::heightDefault);
-        else if (r == 402) setWindowHeight (stui::height60);
-        else if (r == 403) setWindowHeight (stui::height75);
-        else if (r == 404) setWindowHeight (stui::height100);
+        else if (r >= 401 && r < 401 + numSizes) setWindowHeight (sizeHeight (r - 401));
+        else if (r >= 420 && r < 420 + numSizes)
+        {
+            WigaWindowSize::setDefaultIndex (JucePlugin_Name, r - 420);   // toutes les nouvelles fenêtres de ce plugin
+            setWindowHeight (sizeHeight (r - 420));                       // et cette fenêtre tout de suite
+        }
         else if (r == 501) { toggleFlag ("sync"); flash (flag ("sync") ? "TEMPO SYNC  -  " + syncText() : "TEMPO SYNC OFF  -  " + rateText(), 2.2); }
         else if (r == 502) { toggleFlag ("stereo"); flash (flag ("stereo") ? "STEREO SPREAD" : "MONO (ORIGINAL)"); }
         else if (r == 503) toggleFlag ("noise");

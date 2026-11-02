@@ -286,7 +286,7 @@ void SmallToneProcessor::getStateInformation (MemoryBlock& dest)
     std::unique_ptr<XmlElement> xml (state.createXml());
     for (int i = 0; i < numLearn; ++i)
         xml->setAttribute (learnDef (i).key, ccMap[i].load());     // -1 = non assigné
-    xml->setAttribute ("uiHeight", uiHeight.load());
+    if (uiHeight.load() > 0) xml->setAttribute ("uiHeight", uiHeight.load());
     xml->setAttribute ("presetName", presetName);
     xml->setAttribute ("program", currentProgram);
     copyXmlToBinary (*xml, dest);
@@ -300,7 +300,10 @@ void SmallToneProcessor::setStateInformation (const void* data, int size)
         {
             for (int i = 0; i < numLearn; ++i)
                 ccMap[i].store (jlimit (-1, 127, xml->getIntAttribute (learnDef (i).key, learnDef (i).defaultCC)));
-            uiHeight = jlimit (stui::heightDefault, stui::heightMax, xml->getIntAttribute ("uiHeight", stui::heightDefault));
+            {
+                const int uh = xml->getIntAttribute ("uiHeight", 0);    // absent = taille par défaut choisie dans le menu
+                uiHeight = uh > 0 ? jlimit (stui::heightDefault, stui::heightMax, uh) : 0;
+            }
             presetName = xml->getStringAttribute ("presetName");
             currentProgram = xml->getIntAttribute ("program", 0);
             apvts.replaceState (ValueTree::fromXml (*xml));

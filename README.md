@@ -34,7 +34,9 @@ Rotary Fast, Subtle Thickener, Shimmer Clean, Warble, Bass Chorus. Clic droit �
 communs à toutes les instances (`%APPDATA%\Studio Wiga\Small Tone\user_presets.xml`).
 
 ## Clic droit (n'importe où)
-- **Window size** : 60 % (default, taille minimale, comme Holyverb), 75 %, 100 % — ou tirer le coin.
+- **Plugin size** : 60 % (taille minimale, comme Holyverb), 75 %, 100 % — ou tirer le coin ; « (default) » à côté de la taille par défaut.
+  *Default size (new windows)* : taille d'ouverture des nouvelles fenêtres, mémorisée pour toutes les instances (comme Octopus)
+  et appliquée tout de suite ; une taille changée dans un projet reste celle de cette instance.
 - **Options** : RATE synchronisé au tempo du DAW (2 mesures → 1/16, aussi par clic sur la LED STATUS), stéréo élargie (LFO inversé à droite ;
   l'original est mono), souffle du BBD, anneau du RATE qui pulse avec le LFO.
 - **MIDI** : canal, *Learn* — par défaut Footswitch = CC 80, Rate = CC 81, Depth = CC 82, Sync = CC 83 ;
@@ -61,3 +63,5 @@ Police Inter (licence SIL OFL, `OFL-Inter.txt`).
 - v1.1.1 : menu de taille de fenêtre : « 60 % (default) », 75 %, 100 % (plus de taille en pixels)
 
 - v1.2.0 : MIDI Learn au clic droit sur chaque commande (Clear MIDI, assignations sauvegardées avec le projet)
+
+- v1.3.0 : clic droit > Plugin size > Default size (new windows) : taille par défaut des nouvelles fenêtres au choix, comme dans Octopus

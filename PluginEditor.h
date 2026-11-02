@@ -57,6 +57,7 @@ private:
     int cacheW = 0, cacheH = 0;
     float cacheScale = 0.0f;
     int resizeSettle = 0;
+    int openHeight = 0;           // hauteur d'ouverture de la fenêtre (taille par défaut ou taille de l'instance)
     void* lastPeer = nullptr;
     double lastPaintMs = 0.0, repaintAskedMs = 0.0, lastScaleCheckMs = 0.0, lastRendererCheckMs = 0.0;
     float scale() const { return (float) getWidth() / art::W; }
@@ -75,6 +76,8 @@ private:
     juce::String rateText() const;
     void showContextMenu (int learnIdx = -1);     // learnIdx >= 0 : clic droit sur une commande (MIDI Learn en tête du menu)
     void setWindowHeight (int h);
+    static constexpr int numSizes = 3;           // 60 % (défaut d'origine) / 75 % / 100 %
+    static int sizeHeight (int idx);
     void askUserPresetName (int slot);
     void rebuildScaledImages (float physScale = 0.0f);
     void paintIndex (juce::Graphics&) const;
