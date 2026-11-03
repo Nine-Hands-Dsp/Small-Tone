@@ -39,7 +39,7 @@ communs à toutes les instances (`%APPDATA%\Studio Wiga\Small Tone\user_presets.
   et appliquée tout de suite ; une taille changée dans un projet reste celle de cette instance.
 - **Options** : RATE synchronisé au tempo du DAW (2 mesures → 1/16, aussi par clic sur la LED STATUS), stéréo élargie (LFO inversé à droite ;
   l'original est mono), souffle du BBD, anneau du RATE qui pulse avec le LFO.
-- **MIDI** : canal, *Learn* — par défaut Footswitch = CC 80, Rate = CC 81, Depth = CC 82, Sync = CC 83 ;
+- **MIDI** : canal, *Learn* — aucun CC assigné par défaut : clic droit > MIDI > Learn ; « Clear all MIDI assignments » efface tout ;
   clic droit sur une commande (potard, switch, footswitch, LED STATUS / SYNC) → « MIDI Learn » / « Clear MIDI » ;
   pédale à verrouillage ou momentanée ; Program Change n = preset n+1.
 
@@ -65,3 +65,5 @@ Police Inter (licence SIL OFL, `OFL-Inter.txt`).
 - v1.2.0 : MIDI Learn au clic droit sur chaque commande (Clear MIDI, assignations sauvegardées avec le projet)
 
 - v1.3.0 : clic droit > Plugin size > Default size (new windows) : taille par défaut des nouvelles fenêtres au choix, comme dans Octopus
+
+- v1.3.1 : plus aucun CC MIDI assigné par défaut (tout passe par le MIDI Learn)

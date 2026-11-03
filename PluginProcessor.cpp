@@ -48,10 +48,10 @@ const SmallToneProcessor::LearnDef& SmallToneProcessor::learnDef (int i)
 {
     static const LearnDef defs[numLearn] =
     {
-        { "ccFoot",  "Footswitch",   80 },   // à accrochage ou momentané (option du menu MIDI)
-        { "ccRate",  "Rate",         81 },
-        { "ccDepth", "Depth switch", 82 },   // >= 64 : DEPTH
-        { "ccSync",  "Sync",         83 },   // >= 64 : synchro tempo (LED STATUS)
+        { "ccFoot",  "Footswitch",   -1, 80 },   // à accrochage ou momentané (option du menu MIDI)
+        { "ccRate",  "Rate",         -1, 81 },
+        { "ccDepth", "Depth switch", -1, 82 },   // >= 64 : DEPTH
+        { "ccSync",  "Sync",         -1, 83 },   // >= 64 : synchro tempo (LED STATUS)
     };
     return defs[jlimit (0, numLearn - 1, i)];
 }
@@ -298,8 +298,13 @@ void SmallToneProcessor::setStateInformation (const void* data, int size)
     {
         if (xml->hasTagName (apvts.state.getType()))
         {
+            bool untouchedFactory = true;     // ancien projet avec la table d'usine CC 80-83 jamais modifiée : on la vide
             for (int i = 0; i < numLearn; ++i)
+            {
                 ccMap[i].store (jlimit (-1, 127, xml->getIntAttribute (learnDef (i).key, learnDef (i).defaultCC)));
+                if (ccMap[i].load() != learnDef (i).legacyCC) untouchedFactory = false;
+            }
+            if (untouchedFactory) resetMidiMap();
             {
                 const int uh = xml->getIntAttribute ("uiHeight", 0);    // absent = taille par défaut choisie dans le menu
                 uiHeight = uh > 0 ? jlimit (stui::heightDefault, stui::heightMax, uh) : 0;

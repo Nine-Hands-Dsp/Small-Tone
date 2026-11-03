@@ -560,7 +560,7 @@ void SmallToneEditor::showContextMenu (int learnIdx)
     for (int i = 0; i < SmallToneProcessor::numLearn; ++i)
         midi.addItem (1000 + i, "Learn: " + String (SmallToneProcessor::learnDef (i).name) + " (" + ccLabel (proc.ccMap[i].load()) + ")", true, lt == i);
     if (lt >= 0) midi.addItem (1200, "Cancel MIDI learn");
-    midi.addItem (1201, "Reset MIDI to defaults (CC 80-83)");
+    midi.addItem (1201, "Clear all MIDI assignments");
     midi.addSeparator();
     const bool mom = flag ("ccmomentary");
     midi.addItem (710, "Footswitch: latching pedal (127 = on, 0 = bypass)", true, ! mom);
@@ -619,7 +619,7 @@ void SmallToneEditor::showContextMenu (int learnIdx)
             flash (String (SmallToneProcessor::learnDef (r - 1100).name) + " : MIDI CLEARED", 1.5);
         }
         else if (r == 1200) { proc.learnTarget.store (-1); flash ("MIDI LEARN CANCELLED", 1.5); }
-        else if (r == 1201) { proc.learnTarget.store (-1); proc.resetMidiMap(); flash ("CC 80 / 81 / 82 / 83"); }
+        else if (r == 1201) { proc.learnTarget.store (-1); proc.resetMidiMap(); flash ("ALL MIDI CLEARED", 1.5); }
         else if (r == 710 || r == 711) setParam ("ccmomentary", r == 711 ? 1.0f : 0.0f);
         repaint();
     });
