@@ -1,4 +1,5 @@
 #include "PluginProcessor.h"
+#include "NineHandsFolder.h"
 #include "PluginEditor.h"
 
 using namespace juce;
@@ -113,7 +114,7 @@ void SmallToneProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& m
     for (int c = inCh; c < outCh; ++c) buffer.copyFrom (c, 0, buffer, 0, 0, n);   // mono -> stéréo
 
     // ---- MIDI : learn, CC, program change
-    // Anti-gel v2 (Studio Wiga) : rien n'est envoyé à l'hôte d'ici (ni setValueNotifyingHost ni
+    // Anti-gel v2 (NINE HANDS | DSP) : rien n'est envoyé à l'hôte d'ici (ni setValueNotifyingHost ni
     // triggerAsyncUpdate) ; les valeurs vont dans la file pending*, vidée par le timer du processeur.
     const int chan = (int) pMidiChan->load (std::memory_order_relaxed);
     const bool momentary = pMomentary->load (std::memory_order_relaxed) > 0.5f;
@@ -231,7 +232,7 @@ void SmallToneProcessor::applyPreset (float rate, bool deep, const String& name)
 File SmallToneProcessor::userPresetFile()
 {
     return File::getSpecialLocation (File::userApplicationDataDirectory)
-             .getChildFile ("Studio Wiga").getChildFile ("Small Tone").getChildFile ("user_presets.xml");
+             .getChildFile (nhd::folderName()).getChildFile ("Small Tone").getChildFile ("user_presets.xml");
 }
 
 static std::unique_ptr<XmlElement> readUserPresets()

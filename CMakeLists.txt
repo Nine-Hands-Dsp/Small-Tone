@@ -42,7 +42,7 @@ juce_add_binary_data(SmallToneAssets SOURCES
   SmallToneSans.ttf)
 
 juce_add_plugin(SmallTone
-  COMPANY_NAME               "Studio Wiga"
+  COMPANY_NAME               "NINE HANDS | DSP"
   PLUGIN_MANUFACTURER_CODE   Wiga
   PLUGIN_CODE                SmTn
   FORMATS                    ${SMALLTONE_FORMATS}

@@ -58,7 +58,7 @@ SmallToneEditor::~SmallToneEditor() { stopTimer(); }
 // Avec certains pilotes (Intel notamment) la fenêtre du plugin cesse de se rafraîchir alors que
 // le DAW continue de tourner. Le moteur logiciel est stable partout et largement assez rapide ici.
 //
-// Anti-gel v2 (Studio Wiga) :
+// Anti-gel v2 (NINE HANDS | DSP) :
 //  1. moteur de rendu logiciel forcé sur Windows, appliqué à chaque nouvelle fenêtre hôte (peer)
 //     et revérifié toutes les secondes, jamais en boucle ;
 //  2. aucun calcul lourd dans paint() : le fond et les calques lumineux mis à l'échelle sont refaits
@@ -577,7 +577,7 @@ void SmallToneEditor::showContextMenu (int learnIdx)
         if (lt >= 0) m.addItem (1200, "Cancel MIDI learn");
         m.addSeparator();
     }
-    m.addSectionHeader ("Small Tone v" JucePlugin_VersionString " - STUDIO WIGA");
+    m.addSectionHeader ("Small Tone v" JucePlugin_VersionString " - NINE HANDS | DSP");
     m.addSubMenu ("Factory presets", factory);
     m.addSubMenu ("Load user preset", load);
     m.addSubMenu ("Save user preset", save);

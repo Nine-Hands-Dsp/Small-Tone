@@ -1,4 +1,4 @@
-# SMALL TONE (Studio Wiga) - notice PDF bilingue (anglais puis francais).
+# SMALL TONE (NINE HANDS | DSP) - notice PDF bilingue (anglais puis francais).
 # Usage : python3 tools/manual.py [fichier PDF de sortie]   (defaut : docs/SmallTone_Manual_EN-FR_v<version>.pdf)
 # Version lue dans CMakeLists.txt. Illustrations : tools/manual_assets/ (captures et graphiques repris de la notice v1.2.0,
 # toujours justes ; diagram_en/fr = synoptique du circuit). Moteur de mise en page : tools/manual_lib.py.
@@ -39,8 +39,8 @@ def content(lang):
           ("bullets", [t("<b>Windows</b>: copy <b>Small Tone.vst3</b> into <b>C:\\Program Files\\Common Files\\VST3\\</b>.", "<b>Windows</b> : copiez <b>Small Tone.vst3</b> dans <b>C:\\Program Files\\Common Files\\VST3\\</b>."),
                        t("<b>macOS</b> (universal, Apple Silicon and Intel): copy <b>Small Tone.vst3</b> into <b>~/Library/Audio/Plug-Ins/VST3/</b>, then run once in Terminal: <i>xattr -cr ~/Library/Audio/Plug-Ins/VST3/\"Small Tone.vst3\"</i> (removes the download quarantine).",
                          "<b>macOS</b> (universel, Apple Silicon et Intel) : copiez <b>Small Tone.vst3</b> dans <b>~/Library/Audio/Plug-Ins/VST3/</b>, puis lancez une fois dans le Terminal : <i>xattr -cr ~/Library/Audio/Plug-Ins/VST3/\"Small Tone.vst3\"</i> (retire la quarantaine du téléchargement)."),
-                       t("<b>Reaper</b>: Options &gt; Preferences &gt; Plug-ins &gt; VST &gt; <i>Re-scan</i>. The plug-in appears as <b>Small Tone (Studio Wiga)</b>, category Fx | Modulation.",
-                         "<b>Reaper</b> : Options &gt; Préférences &gt; Plug-ins &gt; VST &gt; <i>Re-scan</i>. Le plugin apparaît sous le nom <b>Small Tone (Studio Wiga)</b>, catégorie Fx | Modulation.")]),
+                       t("<b>Reaper</b>: Options &gt; Preferences &gt; Plug-ins &gt; VST &gt; <i>Re-scan</i>. The plug-in appears as <b>Small Tone (NINE HANDS | DSP)</b>, category Fx | Modulation.",
+                         "<b>Reaper</b> : Options &gt; Préférences &gt; Plug-ins &gt; VST &gt; <i>Re-scan</i>. Le plugin apparaît sous le nom <b>Small Tone (NINE HANDS | DSP)</b>, catégorie Fx | Modulation.")]),
           ("pb",)]
     rows = [[t("No.", "N°"), t("Element", "Élément"), t("Function", "Fonction")],
             ["1", "RATE", t("Modulation speed. The light ring around the knob pulses with the LFO.", "Vitesse de modulation. L'anneau lumineux autour du potard pulse au rythme du LFO.")],
@@ -95,11 +95,11 @@ def content(lang):
           ("keep", [("space", 1), ("table", midi, [42, None])]),
           ("cond", 120),
           ("h1", t("7. Window and status line", "7. Fenêtre et ligne d'état")),
-          ("bullets", [t("The window opens at the default size, <b>60 %</b> unless you choose another one, the same as Holyverb and the other Studio Wiga pedals, and can never be made smaller than 60 %.", "La fenêtre s'ouvre à la taille par défaut, <b>60 %</b> sauf si vous en choisissez une autre, comme Holyverb et les autres pédales Studio Wiga, et ne peut jamais être plus petite que 60 %."),
+          ("bullets", [t("The window opens at the default size, <b>60 %</b> unless you choose another one, the same as Holyverb and the other NINE HANDS | DSP pedals, and can never be made smaller than 60 %.", "La fenêtre s'ouvre à la taille par défaut, <b>60 %</b> sauf si vous en choisissez une autre, comme Holyverb et les autres pédales NINE HANDS | DSP, et ne peut jamais être plus petite que 60 %."),
                        t("Right-click &gt; <b>Plugin size</b>: <b>60 %</b>, <b>75 %</b> or <b>100 %</b> for this window (the current size is ticked); <b>(default)</b> is shown next to the default size you have chosen. You can also enlarge the window from its corner, up to 150 %.", "Clic droit &gt; <b>Plugin size</b> : <b>60 %</b>, <b>75 %</b> ou <b>100 %</b> pour cette fenêtre (la taille actuelle est cochée) ; <b>(default)</b> est affiché à côté de la taille par défaut que vous avez choisie. On peut aussi agrandir la fenêtre par son coin, jusqu'à 150 %."),
                        t("<b>Plugin size &gt; Default size (new windows)</b>: chooses the size at which every new Small Tone window opens (a setting common to all instances, saved on your computer); the open window takes this size straight away.", "<b>Plugin size &gt; Default size (new windows)</b> : choisit la taille d'ouverture de toutes les nouvelles fenêtres de Small Tone (réglage commun à toutes les instances, enregistré sur l'ordinateur) ; la fenêtre ouverte prend aussitôt cette taille."),
                        t("Once the window of an instance has been resized (menu or corner), that size is saved with the project and stays this instance's size when the project is reopened; an instance whose window was never resized opens at the default size.", "Dès que la fenêtre d'une instance a été redimensionnée (menu ou coin), cette taille est enregistrée avec le projet et reste celle de l'instance à la réouverture ; une instance dont la fenêtre n'a jamais été redimensionnée s'ouvre à la taille par défaut."),
-                       t("The status line under the Studio Wiga logo only appears while you adjust something (speed, mode, footswitch, preset, tempo sync, MIDI) and fades out after about two seconds, leaving the pedal clean. It stays on while a MIDI Learn is waiting.", "La ligne d'état sous le logo Studio Wiga n'apparaît que pendant un réglage (vitesse, mode, footswitch, preset, synchro tempo, MIDI) et s'efface en fondu après deux secondes environ, laissant la pédale nette. Elle reste affichée tant qu'un MIDI Learn attend.")]),
+                       t("The status line under the NINE HANDS | DSP logo only appears while you adjust something (speed, mode, footswitch, preset, tempo sync, MIDI) and fades out after about two seconds, leaving the pedal clean. It stays on while a MIDI Learn is waiting.", "La ligne d'état sous le logo NINE HANDS | DSP n'apparaît que pendant un réglage (vitesse, mode, footswitch, preset, synchro tempo, MIDI) et s'efface en fondu après deux secondes environ, laissant la pédale nette. Elle reste affichée tant qu'un MIDI Learn attend.")]),
           ("keep", [("h2", t("Right-click menu", "Menu du clic droit")),
                     ("table", [[t("Entry", "Entrée"), t("Content", "Contenu")],
                                [t("MIDI Learn (on a control)", "MIDI Learn (sur une commande)"), "MIDI Learn / Clear MIDI / Cancel MIDI learn"],
@@ -114,11 +114,11 @@ def content(lang):
     for i, (nm, hz, d) in enumerate(FACTORY):
         pre.append([nm, "DEPTH" if d else "DIN.", hz if en else hz.replace(".", ","), DESC[lang][i]])
     b += [("h1", "8. Presets"),
-          ("p", t("The 9 factory presets are VST3 programs: they appear in the DAW preset menu (Reaper: preset field of the FX window) and under right-click &gt; Factory presets. 9 user presets are shared by all instances (%APPDATA%\\Studio Wiga\\Small Tone\\user_presets.xml or ~/Library/Studio Wiga/Small Tone/).",
-                  "Les 9 presets usine sont des programmes VST3 : ils apparaissent dans le menu des presets du DAW (Reaper : champ preset de la fenêtre FX) et sous clic droit &gt; Factory presets. 9 presets utilisateur sont communs à toutes les instances (%APPDATA%\\Studio Wiga\\Small Tone\\user_presets.xml ou ~/Library/Studio Wiga/Small Tone/).")),
+          ("p", t("The 9 factory presets are VST3 programs: they appear in the DAW preset menu (Reaper: preset field of the FX window) and under right-click &gt; Factory presets. 9 user presets are shared by all instances (%APPDATA%\\NINE HANDS | DSP\\Small Tone\\user_presets.xml or ~/Library/NINE HANDS | DSP/Small Tone/).",
+                  "Les 9 presets usine sont des programmes VST3 : ils apparaissent dans le menu des presets du DAW (Reaper : champ preset de la fenêtre FX) et sous clic droit &gt; Factory presets. 9 presets utilisateur sont communs à toutes les instances (%APPDATA%\\NINE HANDS | DSP\\Small Tone\\user_presets.xml ou ~/Library/NINE HANDS | DSP/Small Tone/).")),
           ("table", pre, [38, 18, 20, None]),
           ("h1", t("9. Tips", "9. Conseils")),
-          ("bullets", [t("<b>Reaper chain</b>: place Small Tone before your amp simulator (Two Notes Genome...), like a pedal in front of an amp, with your other Studio Wiga pedals. For a cleaner, more “studio” chorus, try it after the amp sim instead (FX-loop style).", "<b>Chaîne Reaper</b> : placez Small Tone avant la simulation d'ampli (Two Notes Genome...), comme une pédale devant un ampli, avec vos autres pédales Studio Wiga. Pour un chorus plus propre, plus « studio », essayez-le après la simulation (façon boucle d'effets)."),
+          ("bullets", [t("<b>Reaper chain</b>: place Small Tone before your amp simulator (Two Notes Genome...), like a pedal in front of an amp, with your other NINE HANDS | DSP pedals. For a cleaner, more “studio” chorus, try it after the amp sim instead (FX-loop style).", "<b>Chaîne Reaper</b> : placez Small Tone avant la simulation d'ampli (Two Notes Genome...), comme une pédale devant un ampli, avec vos autres pédales NINE HANDS | DSP. Pour un chorus plus propre, plus « studio », essayez-le après la simulation (façon boucle d'effets)."),
                        t("<b>7-string / low tunings</b>: the delayed signal is filtered below about 70 Hz, so a low G string keeps a firm, un-chorused fundamental. For heavy low riffs prefer DIN. or the Bass Chorus preset; keep DEPTH for chords and cleans.", "<b>7 cordes / accordages graves</b> : le signal retardé est filtré sous 70 Hz environ, un Sol grave garde une fondamentale ferme, sans chorus. Pour les riffs graves préférez DIN. ou le preset Bass Chorus ; gardez DEPTH pour les accords et les sons clairs."),
                        t("<b>Stereo</b>: the original pedal is mono. Right-click &gt; Options &gt; Stereo spread inverts the LFO on the right channel for a wide image.", "<b>Stéréo</b> : la pédale d'origine est mono. Clic droit &gt; Options &gt; Stereo spread inverse le LFO du canal droit pour une image large."),
                        t("<b>Expression pedal</b>: learn RATE on your expression pedal (MIDI Learn) to sweep from slow chorus to fast rotary in real time; learn SYNC on a MIDI footswitch to switch tempo sync on stage.", "<b>Pédale d'expression</b> : apprenez RATE sur votre pédale d'expression (MIDI Learn) pour passer en direct du chorus lent au rotary rapide ; apprenez SYNC sur un footswitch MIDI pour basculer la synchro tempo en live."),
@@ -126,7 +126,7 @@ def content(lang):
           ("pb",),
           ("h1", t("10. Specifications", "10. Caractéristiques techniques")),
           ("table", [[t("Item", "Élément"), t("Value", "Valeur")],
-                     ["Format", t("VST3 - Windows 64-bit, macOS universal (Apple Silicon + Intel) - Studio Wiga, Fx | Modulation", "VST3 - Windows 64 bits, macOS universel (Apple Silicon + Intel) - Studio Wiga, Fx | Modulation")],
+                     ["Format", t("VST3 - Windows 64-bit, macOS universal (Apple Silicon + Intel) - NINE HANDS | DSP, Fx | Modulation", "VST3 - Windows 64 bits, macOS universel (Apple Silicon + Intel) - NINE HANDS | DSP, Fx | Modulation")],
                      [t("Original pedal", "Pédale d'origine"), "Electro-Harmonix Small Clone (EH-4600)"],
                      [t("Channels", "Canaux"), t("mono to stereo, stereo to stereo", "mono vers stéréo, stéréo vers stéréo")],
                      ["LFO", t("LM358 integrator (2.2 µF) + hysteresis comparator (120k / 470k), triangle 0.86 - 2.79 V, 0.42 - 9.4 Hz", "intégrateur LM358 (2,2 µF) + comparateur à hystérésis (120k / 470k), triangle 0,86 - 2,79 V, 0,42 - 9,4 Hz")],
@@ -143,4 +143,4 @@ def content(lang):
 
 
 L.build(OUT, "Small Tone", VERSION, "#8B5CF6", "S M A L L &nbsp;&nbsp; T O N E", TEXTS, content,
-        footer="Small Tone " + VERSION + " \u00b7 Studio Wiga")
+        footer="Small Tone " + VERSION + " \u00b7 NINE HANDS | DSP")

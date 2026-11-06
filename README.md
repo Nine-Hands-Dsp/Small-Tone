@@ -1,4 +1,4 @@
-# Small Tone — Studio Wiga
+# Small Tone — NINE HANDS | DSP
 
 Chorus analogique **VST3** (Windows 64 bits + macOS universel Apple Silicon/Intel) au format pédale,
 modélisé composant par composant sur l'Electro-Harmonix **Small Clone** (EH-4600) : LFO LM358, horloge CD4047,
@@ -11,7 +11,7 @@ ligne à retard BBD MN3207 de 1024 étages. Même taille de pédale et de fenêt
    - `SmallTone-VST3-Windows` → copie `Small Tone.vst3` dans `C:\Program Files\Common Files\VST3\`
    - `SmallTone-VST3-macOS` → copie `Small Tone.vst3` dans `~/Library/Audio/Plug-Ins/VST3/` puis lance une fois
      `xattr -cr ~/Library/Audio/Plug-Ins/VST3/"Small Tone.vst3"`
-4. Dans Reaper : re-scanne les plug-ins. Le plugin apparaît comme **Small Tone (Studio Wiga)**.
+4. Dans Reaper : re-scanne les plug-ins. Le plugin apparaît comme **Small Tone (NINE HANDS | DSP)**.
 
 Le job *Test du moteur chorus* compile `dsp_test.cpp` (plage du RATE, balayage du BBD, niveaux, stabilité
 de 44,1 à 192 kHz). S'il échoue, le build est signalé en rouge.
@@ -31,7 +31,7 @@ plus la modulation devient douce. Basculer le switch fait glisser le délai pend
 ## Presets
 Menu des presets de la fenêtre du DAW (programmes VST3) : Classic Deep, Grunge Water, Slow Ocean, Seasick,
 Rotary Fast, Subtle Thickener, Shimmer Clean, Warble, Bass Chorus. Clic droit → 9 presets utilisateur
-communs à toutes les instances (`%APPDATA%\Studio Wiga\Small Tone\user_presets.xml`).
+communs à toutes les instances (`%APPDATA%\NINE HANDS | DSP\Small Tone\user_presets.xml`).
 
 ## Clic droit (n'importe où)
 - **Plugin size** : 60 % (taille minimale, comme Holyverb), 75 %, 100 % — ou tirer le coin ; « (default) » à côté de la taille par défaut.
