@@ -58,7 +58,7 @@ LED = (CX + 186.0 * KX, P(158.0)); LED_LENS = 10.5
 FS = (CX, P(648.0) + 8.0 / SC); FS_FLATS = 98.0   # centre entre le pied de FULL-CHORUS et le rebord violet du bas (73 px de chaque cote, image 1800 px)
 FS_GROOVE_R, FS_GROOVE_W = 40.0, 2.5             # anneau lumineux dans la gorge du footswitch (comme Octopus)
 PRESET = (CX - 198.0, P(770.0), 396.0, 37.6)      # 400 x 38 unites du plugin (regle Strong Pickle)
-LOGO_C = (CX, P(834.0)); LOGO_W = 190.0
+LOGO_C = (CX, P(834.0)); LOGO_W = 171.0      # logo reduit de 10 % (nov. 2026)
 JACK_X = (CX - 196.0 * KX, CX + 190.0 * KX)       # jacks sur le dessus : OUTPUT a gauche, INPUT a droite (au-dessus des inscriptions)
 SCREWS = [(TOG[0], P(72.0)), (TOG[0], P(256.0)), (LED[0] + 4.0, P(72.0)), (LED[0] + 4.0, P(256.0)),
           (PX0 + 50.0, P(706.0)), (PX0 + PW - 50.0, P(706.0))]
@@ -120,22 +120,26 @@ img *= body[..., None]
 
 # ------------------------------------------------------------------ 2. plaques noires (encastrees, coins arrondis)
 print('plaques...')
+BEVEL = 1.5 / SC                                   # bevel plat de 3 px (image 1800 px) autour de chaque plaque noire
 for (x0, y0, w, h, r) in PANELS:
     psd = rrect_sd(UX, UY, x0, y0, w, h, r)
     pm = np.clip(0.5 - psd * AS, 0, 1)
-    # ombre interne de l'encastrement (bord haut / gauche) et liseré clair (bord bas / droit)
-    inner = np.clip(-psd, 0, None)
-    sh_in = np.exp(-inner / 2.2) * np.clip(-(UX - (x0 + w / 2)) / w - (UY - (y0 + h / 2)) / h + 0.6, 0, 1.2)
-    hl_in = np.exp(-inner / 1.1) * np.clip((UX - (x0 + w / 2)) / w + (UY - (y0 + h / 2)) / h + 0.2, 0, 1)
     tex = 15.0 + fbm((H, W), [1, 3], [1.4, 0.8], 7) + 2.5 * fbm((H, W), [80, 240], [0.6, 0.8], 8)
     lit = 1.0 + 0.22 * np.exp(-(((UX - 250) / 300) ** 2 + ((UY - 180) / 360) ** 2))
     pcol = (tex * lit)[..., None] * np.array([0.98, 0.98, 1.04])
-    pcol *= (1 - 0.55 * np.clip(sh_in, 0, 1))[..., None]
-    pcol += (34.0 * np.clip(hl_in, 0, 1))[..., None] * np.array([0.85, 0.75, 1.0])
-    # fin chanfrein du cadre violet autour de la plaque : la lumiere accroche le bord bas / droit de l'ouverture
-    rim = np.clip(1 - np.abs(psd + 0.2) / 1.2, 0, 1)
+    # bevel plat (chanfrein a 45 degres, largeur constante) : chaque face prend une teinte unie selon son orientation
+    # par rapport a la lumiere (haut / gauche eclaires, bas / droite sombres), sans degrade dans la largeur
+    inner = -psd
+    band = np.clip((inner + 0.25) * AS * 2, 0, 1) * np.clip((BEVEL - inner) * AS * 2 + 0.5, 0, 1)
+    gyp, gxp = np.gradient(psd)
+    gn = np.hypot(gxp, gyp) + 1e-6
+    ox, oy = gxp / gn, gyp / gn                              # normale sortante dans le plan
+    n = np.dstack([ox * 0.7071, oy * 0.7071, np.full_like(ox, 0.7071)])
+    ndl_b = np.clip(n @ L, 0, 1); ndh_b = np.clip(n @ HV, 0, 1)
+    bev = (5.0 + 62.0 * ndl_b ** 1.6 + 55.0 * ndh_b ** 14)[..., None] * np.array([0.95, 0.93, 1.05])
+    bev += fbm((H, W), [1], [1.0], 9)[..., None]
+    pcol = pcol * (1 - band[..., None]) + bev * band[..., None]
     img = img * (1 - pm[..., None]) + pcol * pm[..., None]
-    img += (rim * np.clip((UX - (x0 + w / 2)) / w + (UY - (y0 + h / 2)) / h + 0.4, 0, 1) * 30.0)[..., None] * np.array([0.8, 0.7, 1.0])
 img *= body[..., None]
 
 # ------------------------------------------------------------------ 3. anneaux lumineux (acrylique fume, eteints)
