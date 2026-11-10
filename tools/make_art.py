@@ -120,7 +120,7 @@ img *= body[..., None]
 
 # ------------------------------------------------------------------ 2. plaques noires (encastrees, coins arrondis)
 print('plaques...')
-BEVEL = 1.5 / SC                                   # bevel plat de 3 px (image 1800 px) autour de chaque plaque noire
+BEVEL = 3.0 / SC                                   # bevel plat de 6 px (image 1800 px) autour de chaque plaque noire
 for (x0, y0, w, h, r) in PANELS:
     psd = rrect_sd(UX, UY, x0, y0, w, h, r)
     pm = np.clip(0.5 - psd * AS, 0, 1)
