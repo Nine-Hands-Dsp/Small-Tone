@@ -31,7 +31,7 @@ int main (int argc, char** argv)
         set ("on", on ? 1.f : 0.f); set ("sync", sync ? 1.f : 0.f);
         se->setGlowPercent (glowPc);
         run (40); pump (6);
-        if (status.isNotEmpty()) se->flash (status, 60.0);
+        se->flash (status, status.isNotEmpty() ? 60.0 : 0.0);
         se->settleForCapture();
         pump (2);
     };
@@ -55,6 +55,13 @@ int main (int argc, char** argv)
     state (1, true, false, 50, {});                          save ("st_glow_50", ex);
     state (1, true, false, 75, {});                          save ("st_glow_75", ex);
     se->setGlowPercent (100);
+
+    // grande resolution : fenetre a 150 % (1437 px) rendue en 2x (ecran Retina / 4K)
+    se->setWindowHeight (stui::heightMax);
+    se->forceRenderScale (2.0f);
+    pump (8);
+    state (1, true, false, 100, {});                         save ("st_hires_on", 2.0f);
+    state (1, true, true, 100, "Tempo sync  1/4 @ 120 BPM"); save ("st_hires_sync", 2.0f);
 
     // menus clic droit (design Octopus, NineHandsMenu.h) : rendu hors ecran avec le meme LookAndFeel que le plugin
     {
