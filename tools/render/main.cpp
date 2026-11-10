@@ -51,8 +51,9 @@ int main (int argc, char** argv)
                                                              save ("st_exact_bypass", ex);
     state (1, true, true, 100, "Tempo sync  1/4 @ 120 BPM"); save ("st_exact_sync", ex);
     state (1, true, false, 100, "Rate  1.5 Hz");             save ("st_exact_status", ex);
-    state (1, true, false, 0, {});                           save ("st_glow_0", ex);
-    state (1, true, false, 200, {});                         save ("st_glow_200", ex);
+    state (1, true, false, 25, {});                          save ("st_glow_25", ex);
+    state (1, true, false, 50, {});                          save ("st_glow_50", ex);
+    state (1, true, false, 75, {});                          save ("st_glow_75", ex);
     se->setGlowPercent (100);
 
     // menus clic droit (design Octopus, NineHandsMenu.h) : rendu hors ecran avec le meme LookAndFeel que le plugin
@@ -94,9 +95,9 @@ int main (int argc, char** argv)
                   { "Settings", false, true }, { "MIDI", false, true }, { "", true },
                   { "Small Tone v2.0.0  NINE HANDS | DSP", false, false, false, false } }, 1);
         std::vector<It> g;
-        for (int pc : { 0, 25, 50, 75, 100, 125, 150, 175, 200 })
-            g.push_back ({ "Glow " + String (pc) + " %" + (pc == 0 ? "  (off)" : pc == 100 ? "  (default)" : ""), false, false, pc == 100 });
-        render ("st_menu_glow", "Glow", "Halo of the lights", NineHandsMenu::icoGlow, g, 6);
+        for (int pc : { 25, 50, 75, 100 })
+            g.push_back ({ "Glow " + String (pc) + " %" + (pc == 100 ? "  (default)" : ""), false, false, pc == 100 });
+        render ("st_menu_glow", "Glow", "Halo of the lights", NineHandsMenu::icoGlow, g, 1);
         render ("st_menu_knob", "Rate", "MIDI: not assigned", NineHandsMenu::icoKnob,
                 { { "MIDI Learn: Rate" }, { "Clear MIDI: Rate", false, false, false, false }, { "", true },
                   { "Plugin size", false, true }, { "Glow (halo of the lights)", false, true } }, 0);

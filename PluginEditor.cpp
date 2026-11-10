@@ -139,7 +139,7 @@ void SmallToneEditor::rebuildCaches (float sc)
 void SmallToneEditor::setGlowPercent (int pc)
 {
     NineHandsGlow::setPercent (JucePlugin_Name, pc);
-    glow = (float) jlimit (0, 200, pc) / 100.0f;
+    glow = (float) jlimit (25, 100, pc) / 100.0f;
     repaint();
 }
 
@@ -374,7 +374,7 @@ void SmallToneEditor::paint (Graphics& g)
 
 void SmallToneEditor::drawGlows (Graphics& g)
 {
-    // halos sur la facade (calques alpha precalcules), doses par le reglage Glow (0 a 200 %), sous la serigraphie
+    // halos sur la facade (calques alpha precalcules), doses par le reglage Glow (25 a 100 %), sous la serigraphie
     auto layer = [&] (const Image& im, Rectangle<float> r, float level)
     {
         if (level <= 0.003f || ! im.isValid()) return;
@@ -701,7 +701,7 @@ void SmallToneEditor::showContextMenu (int learnIdx)
         for (int i = 0; i < NineHandsGlow::numSteps; ++i)
         {
             const int pc = NineHandsGlow::steps[i];
-            glowM.addItem (60 + i, "Glow " + String (pc) + " %" + (pc == 0 ? "  (off)" : pc == 100 ? "  (default)" : ""), true, now == pc);
+            glowM.addItem (60 + i, "Glow " + String (pc) + " %" + (pc == 100 ? "  (default)" : ""), true, now == pc);
         }
     }
     menu.addSubMenu ("Glow (halo of the lights)", glowM);
