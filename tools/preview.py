@@ -11,6 +11,7 @@ ON = (sys.argv[2] if len(sys.argv) > 2 else 'on') == 'on'
 RATE = float(sys.argv[3]) if len(sys.argv) > 3 else 0.389
 DEEP = (sys.argv[4] if len(sys.argv) > 4 else 'bas') == 'bas'
 PILL = sys.argv[5] if len(sys.argv) > 5 else 'Grunge Water'
+GLOW = float(os.environ.get('GLOW', '1.0'))           # reglage Glow du clic droit (1.0 = 100 %)
 K = 2.0                                                     # px par unite du plugin (image 1235 x 1800)
 FONTS = {0: 'Poppins-Medium.ttf', 1: 'Poppins-Bold.ttf', 2: 'Poppins-Light.ttf'}
 
@@ -25,7 +26,7 @@ def paste(fn, rect, op=1.0):
     canvas.alpha_composite(im, (int(round(rect[0] * K)), int(round(rect[1] * K))))
 
 if ON:
-    paste('glow_ring.png', LAY['glowRing']); paste('glow_led.png', LAY['glowLed'])
+    paste('glow_ring.png', LAY['glowRing'], min(1.0, GLOW)); (paste('glow_ring.png', LAY['glowRing'], GLOW - 1.0) if GLOW > 1.0 else None); paste('ring_core.png', LAY['glowRing']); paste('glow_led.png', LAY['glowLed'])
     l = LAY['led']; paste('led_on.png', (l[0] - l[2] / 2, l[1] - l[2] / 2, l[2], l[2]))
     f_ = LAY['fs']; paste('fs_refl.png', (f_[0] - f_[3] / 2, f_[1] - f_[3] / 2, f_[3], f_[3]), 0.35)
 # inverseur
@@ -84,9 +85,9 @@ if ON:
         ld.ellipse((fx * K * SS - R_ - w_ / 2, fy * K * SS - R_ - w_ / 2, fx * K * SS + R_ + w_ / 2, fy * K * SS + R_ + w_ / 2), outline=rgba, width=w_)
         ov.alpha_composite(lay)
     k_ = rr / 33.2
-    hw = 13.0
+    hw = 20.0                                   # halo du footswitch (encore un peu plus fort, nov. 2026), dose par Glow
     while hw > 3.0:
-        ring(hw * k_, col + (int(255 * 0.045),)); hw -= 1.5
+        ring(hw * k_, col + (int(255 * min(1.0, 0.075 * GLOW)),)); hw -= 1.5
     ring(rw, col + (int(255 * 0.85),))
     ring(rw * 0.42, (214, 198, 255, int(255 * 0.9)))
     big.alpha_composite(ov)

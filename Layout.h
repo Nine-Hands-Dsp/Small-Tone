@@ -9,7 +9,7 @@ namespace layout
     const juce::Point<float> ledPos { 508.15f, 181.26f }; const float ledS = 26.54f;
     const juce::Point<float> fsPos { 308.75f, 684.77f }; const float footR = 37.54f, fsS = 188.29f;
     const juce::Point<float> togglePos { 98.63f, 181.26f }; const float toggleS = 91.01f;
-    const juce::Rectangle<float> glowRing { 165.15f, 31.35f, 287.19f, 287.19f }, glowLed { 416.95f, 90.00f, 182.02f, 182.02f };
+    const juce::Rectangle<float> glowRing { 148.97f, 15.17f, 319.55f, 319.55f }, glowLed { 416.95f, 90.00f, 182.02f, 182.02f };
     const float fsRingR = 40.45f, fsRingW = 2.53f;   // anneau lumineux dans la gorge du footswitch (dessin d'Octopus)
     const juce::Rectangle<float> presetRect { 108.53f, 800.14f, 400.45f, 38.02f };   // pastille unique : barre de presets / ligne d'etat
     const float presetFont = 23.0f;

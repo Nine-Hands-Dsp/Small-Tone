@@ -245,8 +245,10 @@ out_rgb = np.clip(to_out(img), 0, 255); out_a = np.clip(to_out(alpha), 0, 1)
 Image.fromarray(np.dstack([out_rgb, out_a * 255]).astype(np.uint8), 'RGBA').save(os.path.join(ROOT, 'background.png'), optimize=True)
 
 # ------------------------------------------------------------------ 7. calques de lumiere (alpha = seule la lumiere ajoutee)
-def light_layer(src_mask, col, emit_col, gr, c, fn, k1=1.0, k2=0.18, s1=4.0, s2=22.0, strength=1.0):
-    """facade eclairee par une source etendue (src_mask) : tache serree + diffusion large ; la source elle-meme emet emit_col"""
+def light_layer(src_mask, col, emit_col, gr, c, fn, fn_core, k1=1.0, k2=0.18, s1=4.0, s2=22.0, strength=1.0):
+    """facade eclairee par une source etendue (src_mask) : tache serree + diffusion large.
+    Deux calques alpha (seule la lumiere ajoutee) : fn = halo sur la facade (dose par le reglage Glow du clic droit),
+    fn_core = la source elle-meme (anneau allume : coeur presque blanc, bords colores), jamais dosee."""
     x0p, y0p = int(round((c[0] - gr) * AS)), int(round((c[1] - gr) * AS)); size = int(round(2 * gr * AS))
     reg = img[y0p:y0p + size, x0p:x0p + size].astype(np.float64)
     sm = src_mask[y0p:y0p + size, x0p:x0p + size].astype(np.float64)
@@ -255,16 +257,18 @@ def light_layer(src_mask, col, emit_col, gr, c, fn, k1=1.0, k2=0.18, s1=4.0, s2=
     d = np.hypot((xx + 0.5) / AS - gr, (yy + 0.5) / AS - gr)
     E *= np.clip((gr - d) / 24.0, 0, 1) * strength
     lum = reg.mean(2, keepdims=True)
-    lit = reg + (reg * 2.2 + 12.0 * np.clip(lum / 40.0, 0.3, 1.6)) * E[..., None] * np.array(col)
-    # la source (anneau) devient lumineuse : coeur presque blanc, bords colores
     core = np.clip(sm * 1.4, 0, 1)[..., None]
+    lit = reg + (reg * 2.2 + 12.0 * np.clip(lum / 40.0, 0.3, 1.6)) * E[..., None] * np.array(col)
+    def save(add, f):
+        a = np.clip(np.abs(add).max(-1) / 12.0, 0, 1)
+        rgb = np.where(a[..., None] > 1e-3, reg + add / np.maximum(a, 1e-3)[..., None], reg)
+        Image.fromarray(np.dstack([np.clip(rgb, 0, 255), a * 255]).astype(np.uint8), 'RGBA').save(os.path.join(ROOT, f))
+    save((lit - reg) * (1 - core), fn)                       # halo seul (hors de l'anneau)
     hot = np.clip((sm - 0.55) / 0.45, 0, 1)[..., None] ** 1.5
     emit = np.array(col) * 255.0 * 0.92 * (1 - hot) + np.array(emit_col) * hot
-    lit = lit * (1 - core) + emit * core
-    add = lit - reg
-    a = np.clip(np.abs(add).max(-1) / 12.0, 0, 1)
-    rgb = np.where(a[..., None] > 1e-3, reg + add / np.maximum(a, 1e-3)[..., None], reg)
-    Image.fromarray(np.dstack([np.clip(rgb, 0, 255), a * 255]).astype(np.uint8), 'RGBA').save(os.path.join(ROOT, fn))
+    cr = np.dstack([emit, np.clip(sm * 1.4, 0, 1) * 255])     # anneau allume seul
+    cr = np.where(cr[..., 3:4] > 0, cr, 0)
+    Image.fromarray(np.clip(cr, 0, 255).astype(np.uint8), 'RGBA').save(os.path.join(ROOT, fn_core))
     return (x0p / AS, y0p / AS, size / AS, size / AS)
 
 def ring_emitter(c, r0, r1):
@@ -273,7 +277,7 @@ def ring_emitter(c, r0, r1):
 print('lumieres...')
 VIOLET = [0.62, 0.42, 1.0]
 RING_EM = ring_emitter(KNOB, RING_R0, RING_R1)
-GL_RING = light_layer(RING_EM, VIOLET, [246, 240, 255], KNOB_R + 70, KNOB, 'glow_ring.png', k1=0.75, k2=0.16)
+GL_RING = light_layer(RING_EM, VIOLET, [246, 240, 255], KNOB_R + 86, KNOB, 'glow_ring.png', 'ring_core.png', k1=1.5, k2=0.45)   # halo un peu plus fort (nov. 2026)
 # LED bleue : petite source au-dessus de la facade (loi cos / d^2)
 GR = 90.0
 x0p, y0p = int(round((LED[0] - GR) * AS)), int(round((LED[1] - GR) * AS)); size = int(round(2 * GR * AS))

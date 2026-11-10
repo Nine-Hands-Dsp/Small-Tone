@@ -4,9 +4,9 @@
 
 namespace stui
 {
-// tailles de fenêtre identiques à Holyverb (et Freeze Shimmer / Tuna) :
-// 100 % = 986 px de haut, ouverture par défaut = 493 px (= taille minimale)
-constexpr int heightDefault = 493, height60 = 592, height75 = 740, height100 = 986, heightMax = 1479;
+// pedale simple NINE HANDS | DSP (Echoflex, Holyverb, Screamer) : ouverture par defaut 493 px (« 60 % », = taille minimale),
+// 75 % = 719 px, 100 % = 958 px, jusqu'a 150 %
+constexpr int heightDefault = 493, height75 = 719, height100 = 958, heightMax = 1437;
 }
 
 struct FactoryPreset { const char* name; float rate; bool deep; };
@@ -48,7 +48,8 @@ public:
 
     // ----- presets
     static const std::vector<FactoryPreset>& factoryPresets();
-    juce::String presetName;                 // nom affiché sur la ligne d'état (vide = réglage libre)
+    juce::String presetName;                 // nom affiché dans la barre de presets (vide = réglage modifié)
+    std::atomic<int> presetCounter { 0 };    // incrémenté à chaque chargement de preset (la ligne d'état ne s'affiche pas)
     void applyPreset (float rate, bool deep, const juce::String& name);
     // presets utilisateur 1 … 9 (communs à toutes les instances)
     static juce::File userPresetFile();

@@ -2,31 +2,14 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "PluginProcessor.h"
+#include "Layout.h"
+#include "NineHandsMenu.h"
 
 //==============================================================================
-// Géométrie du visuel (pixels de background.png : 1520 x 1916, même format que Holyverb)
-namespace art
-{
-constexpr float W = 1520.0f, H = 1916.0f;
-struct Circle { float x, y, r; };
-constexpr Circle knob      { 759.7f, 401.1f, 164.4f };    // potard RATE (zone cliquable)
-constexpr float  indexR0 = 82.2f, indexR1 = 143.9f, indexW = 9.6f;   // index blanc du potard
-constexpr float  knobSweep = 2.356194f;                   // ±135° (graduations de la sérigraphie)
-constexpr Circle foot      { 760.0f, 1418.5f, 89.9f };    // footswitch
-constexpr Circle status    { 1073.0f, 410.9f, 36.0f };    // LED STATUS
-const juce::Rectangle<float> glowRate   { 489.0f, 131.0f, 540.0f, 539.0f };
-const juce::Rectangle<float> glowFoot   { 580.0f, 1238.0f, 359.0f, 360.0f };
-const juce::Rectangle<float> glowStatus { 990.0f, 328.0f, 165.0f, 165.0f };
-const juce::Rectangle<float> labelSync  { 1107.0f, 366.0f, 201.0f, 89.0f };   // inscription SYNC (image avec marge)
-const juce::Rectangle<float> hitSync    { 1130.0f, 385.0f, 155.0f, 50.0f };    // zone cliquable du mot SYNC
-const juce::Rectangle<float> toggle     { 364.0f, 338.0f, 152.0f, 142.0f };
-const juce::Rectangle<float> labelDin   { 389.0f, 276.0f, 92.0f, 48.0f };     // "DIN."
-const juce::Rectangle<float> labelDepth { 314.0f, 508.0f, 160.0f, 52.0f };    // "DEPTH"
-constexpr float statusLineX = 758.5f;  // centre de la ligne d'état
-constexpr float statusLineY = 1797.9f;    // ligne "USA" d'origine (centre)
-constexpr float statusCapH  = 23.2f;      // hauteur des capitales de "USA"
-}
-
+// SMALL TONE v2 (NINE HANDS | DSP) : pedale simple, fond 1235 x 1800 px plein cadre (repere 617,5 x 900, Layout.h).
+// Le fond contient boitier, plaques, potard (sans repere), LED eteinte, footswitch et jacks (pieces photo du kit) ;
+// l'editeur dessine par-dessus : halos (dosés par le reglage Glow du clic droit), anneaux allumes, LED, inverseur,
+// serigraphie vectorielle (Poppins), logo NINE HANDS | DSP, repere du potard, pastille presets / ligne d'etat.
 //==============================================================================
 class SmallToneEditor : public juce::AudioProcessorEditor,
                         private juce::Timer
@@ -44,71 +27,84 @@ public:
     void mouseUp (const juce::MouseEvent&) override;
     void mouseDoubleClick (const juce::MouseEvent&) override;
     void mouseMove (const juce::MouseEvent&) override;
+    void mouseExit (const juce::MouseEvent&) override;
     void mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails&) override;
+
+    static constexpr float baseW = layout::frameW, baseH = layout::frameH;
+    static constexpr int numSizes = 3;           // 60 % (defaut) / 75 % / 100 %
+    static int sizeHeight (int idx);
+    void setWindowHeight (int h);
+    // outil de rendu (captures) : echelle forcee, etat lumineux immediat, menu
+    void forceRenderScale (float sc) { forcedScale = sc; rebuildCaches (sc); }
+    void settleForCapture();
+    void setGlowPercent (int pc);
+    void flash (const juce::String& text, double seconds = 2.5);
 
 private:
     void timerCallback() override;
     void visibilityChanged() override;
     void useSoftwareRenderer();
-    // anti-gel v2 : caches refaits par le timer seulement, suivi de la fenêtre hôte, de l'échelle
-    // et des redessins demandés (chien de garde)
     float physicalScale() const;
-    void askRepaint (juce::Rectangle<int> r);
-    int cacheW = 0, cacheH = 0;
-    float cacheScale = 0.0f;
-    int resizeSettle = 0;
-    int openHeight = 0;           // hauteur d'ouverture de la fenêtre (taille par défaut ou taille de l'instance)
-    void* lastPeer = nullptr;
-    double lastPaintMs = 0.0, repaintAskedMs = 0.0, lastScaleCheckMs = 0.0, lastRendererCheckMs = 0.0;
-    float scale() const { return (float) getWidth() / art::W; }
-    juce::Point<float> toArt (juce::Point<float> p) const { return p / scale(); }
-    juce::Rectangle<float> toWin (juce::Rectangle<float> r) const { const float s = scale(); return { r.getX() * s, r.getY() * s, r.getWidth() * s, r.getHeight() * s }; }
-    enum class Hit { none, knob, toggle, din, depth, foot, led };
-    Hit hitAt (juce::Point<float> artPos) const;
+    void askRepaint (juce::Rectangle<float> unitsRect);
+    void rebuildCaches (float sc = 0.0f);
+    float k() const { return (float) getHeight() / baseH; }
+    juce::Point<float> toUnits (juce::Point<float> p) const { return p / k(); }
+
+    enum class Hit { none, knob, toggle, din, depth, foot, led, presetPrev, presetName, presetNext };
+    Hit hitAt (juce::Point<float> u) const;
 
     void setParam (const juce::String& id, float plain);
     void setRate (float r01);
-    void flash (const juce::String& text, double seconds = 1.6);
-    juce::String statusText() const;
-    float statusAlpha() const;
-    static constexpr double kStatusFade = 0.6;   // fondu de sortie de la ligne d'état (s)
-    juce::String syncText() const;
     juce::String rateText() const;
-    void showContextMenu (int learnIdx = -1);     // learnIdx >= 0 : clic droit sur une commande (MIDI Learn en tête du menu)
-    void setWindowHeight (int h);
-    static constexpr int numSizes = 3;           // 60 % (défaut d'origine) / 75 % / 100 %
-    static int sizeHeight (int idx);
+    juce::String syncText() const;
+    juce::String presetLine() const;
+    void stepPreset (int delta);
+    void showPresetMenu();
+    void showContextMenu (int learnIdx = -1);
     void askUserPresetName (int slot);
-    void rebuildScaledImages (float physScale = 0.0f);
-    void paintIndex (juce::Graphics&) const;
-    void paintStatusLine (juce::Graphics&) const;
+    void buildPrint();
+
+    void drawGlows (juce::Graphics&);
+    void drawFootRing (juce::Graphics&);
+    void drawPrint (juce::Graphics&);
+    void drawIndex (juce::Graphics&);
+    void drawBar (juce::Graphics&);
 
     SmallToneProcessor& proc;
-    juce::Image background, glowRate, glowFoot, glowStatus, toggleUp, toggleDown, toggleMid, labelSync, labelSyncGlow;
-    juce::Image sBackground, sGlowRate, sGlowFoot, sGlowStatus, sToggleUp, sToggleDown, sToggleMid, sLabelSync, sLabelSyncGlow;
-    juce::Typeface::Ptr labelFace;
-    float capRatio = 0.72f, capTopRatio = -0.72f;    // capitales : hauteur et haut (y) / hauteur de police
+    NineHandsMenu::MenuLnf menuLnf;
+    juce::Typeface::Ptr mediumFace, boldFace, lightFace, regularFace;
+    std::unique_ptr<juce::Drawable> logo;
+    juce::Path printPath, titlePath, syncPath;      // serigraphie (unites du plugin) ; titre SMALL TONE (contour violet) ; SYNC
+    juce::Rectangle<float> syncHit, dinHit, depthHit;
 
-    float ringLevel = 1.0f, ledLevel = 1.0f, footLevel = 1.0f;
-    bool footDown = false;
-    Hit dragging = Hit::none;
-    float dragStartRate = 0.0f;
-    juce::Point<float> dragStart;
-    juce::String flashText;
-    double flashUntil = 0.0;
-    juce::String lastStatus;
-    float lastRate = -1.0f; bool lastDeep = false, lastOn = false;
-    int lastLearnShown = -1;
-    bool shownDeep = true;          // position du levier affichée
-    double toggleMidUntil = 0.0;
+    juce::Image background, bgScaled, glowRing, ringCore, glowLed, ledOn, fsRefl, toggleStrip;
+    int cacheW = 0, cacheH = 0;
+    float cacheScale = 0.0f, forcedScale = 0.0f;
+    int resizeSettle = 0, openHeight = 0;
+    void* lastPeer = nullptr;
+    double lastPaintMs = 0.0, repaintAskedMs = 0.0, lastScaleCheckMs = 0.0, lastRendererCheckMs = 0.0;
+
+    // etat affiche
+    float glow = 1.0f;                              // reglage Glow (1 = 100 %)
+    float ringLevel = 1.0f, ledLevel = 1.0f, footLevel = 1.0f, syncLevel = 0.0f;
     float ledFlash = 0.0f; bool ledArmed = false;
-    float syncGlow = 0.0f;           // halo du mot SYNC quand la synchro est active
-    juce::String lastPresetShown;    // dernier nom de preset affiché
+    bool footDown = false;
+    bool shownDeep = true; double toggleMidUntil = 0.0;
+    Hit dragging = Hit::none, hover = Hit::none;
+    float dragStartRate = 0.0f; juce::Point<float> dragStart;
 
-    // dernier état réellement dessiné : on ne redessine une zone que si elle a changé
-    float drawnRate = -1.0f, drawnRing = -1.0f, drawnLed = -1.0f, drawnSync = -1.0f, drawnFoot = -1.0f, drawnStatusAlpha = -1.0f;
-    bool drawnDeep = false, drawnToggleMoving = false, drawnFootDown = false;
-    juce::String drawnStatus;
+    // pastille unique : barre de presets au repos, ligne d'etat pendant les reglages (fondu croise)
+    juce::String statusText, presetText;
+    double statusUntil = 0.0;
+    float statusAlpha = 0.0f;
+    float lastRate = -1.0f; bool lastDeep = false, lastOn = false, lastSync = false;
+    int lastPresetCounter = 0;
+
+    // dernier etat dessine (on ne redessine une zone que si elle a change)
+    float dRate = -1.0f, dRing = -1.0f, dLed = -1.0f, dFoot = -1.0f, dSync = -1.0f, dStatus = -1.0f;
+    bool dDeep = false, dMoving = false, dFootDown = false;
+    Hit dHover = Hit::none;
+    juce::String dStatusText, dPresetText;
 
     std::unique_ptr<juce::AlertWindow> nameDialog;
 

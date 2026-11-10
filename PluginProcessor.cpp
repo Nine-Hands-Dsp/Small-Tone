@@ -226,6 +226,7 @@ void SmallToneProcessor::applyPreset (float rate, bool deep, const String& name)
     setParam ("depth", deep ? 1.0f : 0.0f);
     setParam ("on", 1.0f);
     presetName = name;
+    presetCounter.fetch_add (1);
 }
 
 //==============================================================================

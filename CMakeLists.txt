@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "")
 
-project(SmallTone VERSION 1.3.2 LANGUAGES C CXX)
+project(SmallTone VERSION 2.0.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -28,18 +28,21 @@ else()
   set(SMALLTONE_FORMATS VST3)
 endif()
 
-# visuel, calques lumineux et police intégrés au plugin (rien à installer à côté)
+# visuel (tools/make_art.py), calques lumineux, police Poppins et logo integres au plugin (rien a installer a cote)
 juce_add_binary_data(SmallToneAssets SOURCES
-  background.jpg
-  glow_rate.png
-  glow_foot.png
-  glow_status.png
-  toggle_up.png
-  toggle_down.png
-  toggle_mid.png
-  label_sync.png
-  label_sync_glow.png
-  SmallToneSans.ttf)
+  background.png
+  glow_ring.png
+  ring_core.png
+  glow_led.png
+  led_on.png
+  fs_refl.png
+  toggle_strip.png
+  Poppins-Regular.ttf
+  Poppins-Medium.ttf
+  Poppins-Bold.ttf
+  Poppins-Light.ttf
+  NineHandsLogo.svg)
+set_target_properties(SmallToneAssets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 juce_add_plugin(SmallTone
   COMPANY_NAME               "NINE HANDS | DSP"
