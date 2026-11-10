@@ -1,7 +1,7 @@
 """
 SMALL TONE (NINE HANDS | DSP) - visuel du plugin, entierement synthetise : pedale simple (refonte nov. 2026).
 
-Design de l'utilisateur (Small Tone Full-Chorus : cadre violet en laque pailletee, trois plaques noires, potard RATE noir brosse
+Design de l'utilisateur (Small Tone Full-Chorus : cadre violet anodise, trois plaques noires, potard RATE noir brosse
 entoure d'un anneau lumineux, LED STATUS, inverseur DIN. / DEPTH, footswitch entoure d'un anneau lumineux),
 refait selon les regles NINE HANDS | DSP :
   - image du plugin 1235 x 1800 px, pedale plein cadre, fond transparent seulement autour des jacks ;
@@ -96,7 +96,7 @@ def ring_mask(c, r0, r1):
 def disc(c, r):
     return np.clip((r - np.hypot(UX - c[0], UY - c[1])) * AS + 0.5, 0, 1)
 
-# ------------------------------------------------------------------ 1. boitier : laque violette pailletee, arete arrondie
+# ------------------------------------------------------------------ 1. boitier : aluminium anodise violet, arete arrondie
 print('boitier...')
 sd = rrect_sd(UX, UY, PX0, PY0, PW, PH, PR)
 body = np.clip(0.5 - sd * AS, 0, 1)
@@ -106,25 +106,15 @@ hgt = np.where(d_in < EDGE, np.sqrt(np.clip(EDGE ** 2 - (EDGE - d_in) ** 2, 0, N
 gy, gx = np.gradient(cv2.GaussianBlur(hgt, (0, 0), 1.0), 1.0 / AS)
 nrm = np.dstack([-gx, -gy, np.ones_like(hgt)]); nrm /= np.linalg.norm(nrm, axis=2, keepdims=True)
 ndl = np.clip(nrm @ L, 0, 1); ndh = np.clip(nrm @ HV, 0, 1)
-# laque violette pailletee : texture fournie par l'utilisateur (assets/kit/paint_violet_flake.png, 4096 px, tilable),
-# reduite a 0,36 (paillettes fines) et tournee de 7 degres pour casser le leger motif diagonal ; un seul tirage couvre
-# toute la pedale. Separee en couleur de fond (basse frequence) et paillettes (haute frequence) :
-# le fond suit l'eclairage du boitier, les paillettes scintillent davantage dans la lumiere (haut a gauche, arete).
-_tx = np.asarray(Image.open(os.path.join(ROOT, 'assets', 'kit', 'paint_violet_flake.png')).convert('RGB')).astype(np.float32)
-_tx = cv2.resize(_tx, (int(4096 * 0.36), int(4096 * 0.36)), interpolation=cv2.INTER_AREA)   # paillettes fines (~1,8 px)
-_tx = np.tile(_tx, (2, 2, 1))                                     # texture tilable : 2 x 2 sans couture
-_c = (_tx.shape[1] / 2, _tx.shape[0] / 2)
-_tx = cv2.warpAffine(_tx, cv2.getRotationMatrix2D(_c, 7.0, 1.0), (_tx.shape[1], _tx.shape[0]), flags=cv2.INTER_LINEAR)
-_oy, _ox = (_tx.shape[0] - H) // 2, (_tx.shape[1] - W) // 2
-tex = _tx[_oy:_oy + H, _ox:_ox + W]
-tex_lo = cv2.GaussianBlur(tex, (0, 0), 5.0)
-tex_hi = tex - tex_lo
-shade = (0.46 + 0.80 * ndl)[..., None]
+anod = np.array([96.0, 64.0, 146.0])                       # violet anodise (mesure sur le visuel de l'utilisateur)
+img = anod * (0.46 + 0.80 * ndl)[..., None] + (64 * ndh ** 36 + 16 * ndh ** 6)[..., None] * np.array([0.92, 0.86, 1.0])
+# anodisation satinee + grain fin (demande de l'utilisateur, nov. 2026 : version lisse avec un peu de grain) :
+# grain au pixel et a 2 px, un peu plus visible dans la lumiere et sur l'arete, + legere marbrure tres basse frequence
 sheen = np.exp(-(((UX - 260) / 320) ** 2 + ((UY - 220) / 380) ** 2))
-sparkle = (0.42 + 0.55 * sheen + 1.3 * ndh ** 10)[..., None] * shade
-img = tex_lo * shade + np.maximum(tex_hi, 0) * sparkle + np.minimum(tex_hi, 0) * shade * 0.7
-img += (64 * ndh ** 36 + 16 * ndh ** 6)[..., None] * np.array([0.92, 0.86, 1.0])
-img += (14.0 * sheen)[..., None] * np.array([0.75, 0.6, 1.0])
+fine = fbm((H, W), [1, 2], [3.2, 1.7], 3)
+img += (fine * (0.75 + 0.5 * sheen + 0.6 * ndh ** 8))[..., None] * np.array([0.85, 0.7, 1.0])
+img += (0.8 * fbm((H, W), [60, 220], [0.8, 1.0], 4))[..., None] * np.array([0.8, 0.6, 1.0])
+img += (20.0 * sheen)[..., None] * np.array([0.75, 0.6, 1.0])
 img *= (1.0 - 0.10 * np.clip((UY - PY0) / PH, 0, 1))[..., None]          # un peu plus sombre vers le bas
 img *= body[..., None]
 
