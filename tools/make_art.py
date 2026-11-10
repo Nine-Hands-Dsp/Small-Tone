@@ -55,7 +55,7 @@ RING_R0, RING_R1 = KNOB_R + 5.0, KNOB_R + 11.0     # anneau lumineux autour du p
 TICK_R0, TICK_R1, TICK_R1L = KNOB_R + 21.0, KNOB_R + 31.0, KNOB_R + 35.0
 TOG = (CX - 196.0 * KX, P(158.0)); TOG_WR = 25.0
 LED = (CX + 186.0 * KX, P(158.0)); LED_LENS = 10.5
-FS = (CX, P(648.0) + 7.5 / SC); FS_FLATS = 98.0   # baisse de 15 px dans l image 1800 px (demande nov. 2026)
+FS = (CX, P(648.0) + 8.0 / SC); FS_FLATS = 98.0   # centre entre le pied de FULL-CHORUS et le rebord violet du bas (73 px de chaque cote, image 1800 px)
 FS_GROOVE_R, FS_GROOVE_W = 40.0, 2.5             # anneau lumineux dans la gorge du footswitch (comme Octopus)
 PRESET = (CX - 198.0, P(770.0), 396.0, 37.6)      # 400 x 38 unites du plugin (regle Strong Pickle)
 LOGO_C = (CX, P(834.0)); LOGO_W = 190.0
