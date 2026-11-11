@@ -96,11 +96,11 @@ int main (int argc, char** argv)
             FileOutputStream os (f); PNGImageFormat().writeImageToStream (img, os);
             std::printf ("%s\n", f.getFullPathName().toRawUTF8());
         };
-        render ("st_menu", "Small Tone", "Analog chorus  v2.0.0", NineHandsMenu::icoPedal,
+        render ("st_menu", "Small Tone", "Analog chorus  v2.0.1", NineHandsMenu::icoPedal,
                 { { "Plugin size", false, true }, { "Glow (halo of the lights)", false, true }, { "", true },
                   { "Factory presets", false, true }, { "Load user preset", false, true }, { "Save user preset", false, true }, { "", true },
                   { "Settings", false, true }, { "MIDI", false, true }, { "", true },
-                  { "Small Tone v2.0.0  NINE HANDS | DSP", false, false, false, false } }, 1);
+                  { "Small Tone v2.0.1  NINE HANDS | DSP", false, false, false, false } }, 1);
         std::vector<It> g;
         for (int pc : { 25, 50, 75, 100 })
             g.push_back ({ "Glow " + String (pc) + " %" + (pc == 100 ? "  (default)" : ""), false, false, pc == 100 });

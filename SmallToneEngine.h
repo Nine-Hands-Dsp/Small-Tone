@@ -10,13 +10,13 @@
 //          -> triangle 0.86 V … 2.79 V, montée un peu plus rapide que la descente
 //             (sortie LM358 basse ≈ 0 V, haute ≈ Vcc-1.4 V), ≈ 0.42 Hz … 9.4 Hz.
 //   DEPTH: sortie LFO -4.7k- nœud X -2.7k- [switch] -masse ; 10 µF sur X ; X -39k- VCO.
-//          switch "DIN." (2.7k à la masse)  : diviseur ×0.365 + RC rapide (≈ 9 Hz)
+//          switch "DIN." (shunt à la masse, recalé 5.6k) : diviseur ×0.53 + RC plus rapide (≈ 6.4 Hz)
 //          switch "DEPTH" (2.7k en l'air)   : pleine amplitude + RC lent (≈ 3.4 Hz)
 //          => en DEPTH, plus RATE est rapide, plus le balayage est arrondi/réduit
 //             (c'est ce qui donne le côté "liquide" du Small Clone).
 //          Le nœud X garde sa charge : basculer le switch fait glisser le délai (comme l'original).
-//   VCO  : horloge du BBD pilotée par la tension de X (≈ 85 … 195 kHz).
-//   BBD  : MN3207, 1024 étages -> délai = 1024 / (2 · f_clk) ≈ 2.6 … 6 ms.
+//   VCO  : horloge du BBD pilotée par la tension de X (≈ 75 … 200 kHz).
+//   BBD  : MN3207, 1024 étages -> délai = 1024 / (2 · f_clk) ≈ 2.6 … 6.5 ms.
 //          Filtres anti-repliement / reconstruction (≈ 4e ordre, ~5.5-6 kHz),
 //          légère saturation, petit souffle, liaison capacitive.
 //   MIX  : sec + traité à parts égales (pas de réglage de mix sur la pédale).
@@ -109,7 +109,8 @@ struct DepthNetwork
     // deep = true : 2.7k en l'air (switch sur "DEPTH")
     inline double tick (double vin, bool deep, double dt)
     {
-        constexpr double R1 = 4.7e3, R2 = 2.7e3, R3 = 39.0e3, C = 10.0e-6;
+        // R2 : shunt DIN. recale a 5.6k (v2.0.1) : la position DIN. restait presque inaudible avec 2.7k (balayage 0,5 ms)
+        constexpr double R1 = 4.7e3, R2 = 5.6e3, R3 = 39.0e3, C = 10.0e-6;
         constexpr double Rvco = 100.0e3;                     // charge vue par le 39k (entrée VCO)
         // C·dvx/dt = (vin - vx)/R1 - vx/(R3+Rvco) - [vx/R2]   (Euler implicite : stable à tout pas)
         const double g = 1.0 / R1 + 1.0 / (R3 + Rvco) + (deep ? 0.0 : 1.0 / R2);
@@ -124,7 +125,8 @@ struct DepthNetwork
 inline double clockFromControl (double vc)          // Hz
 {
     // l'horloge ralentit quand la tension monte (délai plus long)
-    return std::clamp (210.0e3 - 45.0e3 * vc, 40.0e3, 260.0e3);
+    // recalage nov. 2026 (v2.0.1) : sensibilite du VCO relevee (+22 %), le balayage DEPTH atteint ~3 … 6 ms comme l'original
+    return std::clamp (225.0e3 - 55.0e3 * vc, 40.0e3, 260.0e3);
 }
 inline double bbdDelaySeconds (double fclk) { return 1024.0 / (2.0 * fclk); }
 
@@ -216,7 +218,7 @@ public:
                 const double rd = readFrac (ch, delaySmooth[(size_t) c]);
                 ch.w = (ch.w + 1) & mask;
                 double wet = ch.post2.process (ch.post1.process (rd));
-                wet = ch.hpWet.process (wet) * 0.93;                                // perte du BBD
+                wet = ch.hpWet.process (wet);                                       // signal traite au meme niveau que le direct
 
                 const double fx = (dry + wet) * kMixGain;
                 io[c][i] = (float) (x + (fx - x) * mix);

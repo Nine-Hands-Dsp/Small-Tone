@@ -195,16 +195,16 @@ f += bullets(["Plage : environ 0,42 Hz (tout à gauche) à 9,4 Hz (tout à droit
               "les changements de vitesse glissent sur 30 ms environ, comme un vrai potard (aucun clic).",
               "Avec la synchro tempo, le potard choisit une valeur de note : 2 mesures, 1 mesure, 1/2, 1/4., 1/4, 1/4T, 1/8, 1/8T, 1/16."])
 f += [P("Inverseur DIN. / DEPTH", "h2"),
-      side(bullets(["<b>DIN.</b> (levier en haut) : une résistance de 2,7 k à la masse divise la modulation par 3 environ et raccourcit le délai moyen "
-                    "(environ 2,6 à 3,1 ms). Doublage, épaississement léger, idéal pour les rythmiques en son clair.",
-                    "<b>DEPTH</b> (levier en bas) : modulation complète (environ 3,0 à 5,6 ms aux vitesses lentes). Le son Small Clone profond, presque « mal de mer ».",
+      side(bullets(["<b>DIN.</b> (levier en haut) : une résistance à la masse divise la modulation par 2 environ et raccourcit le délai moyen "
+                    "(environ 2,6 à 3,5 ms). Doublage, épaississement léger, idéal pour les rythmiques en son clair.",
+                    "<b>DEPTH</b> (levier en bas) : modulation complète (environ 3,0 à 6,3 ms aux vitesses lentes). Le son Small Clone profond, presque « mal de mer ».",
                     "Cliquez sur le levier pour basculer, ou directement sur l'inscription « DIN. » ou « DEPTH » ; la molette sur le levier marche aussi. "
                     "Le levier passe par sa position intermédiaire, comme un vrai inverseur."]),
            [img(sw_img, 44 * mm), P("À gauche : DIN. · À droite : DEPTH", "small")], W - 50 * mm),
       P("Interactions entre les réglages", "h2")]
 f += bullets(["En DEPTH, le condensateur de 10 µF entre le LFO et l'horloge arrondit le triangle : plus le RATE est rapide, plus le balayage se resserre "
-              "et s'adoucit (environ 3,6 à 4,3 ms à 6 Hz). Les vitesses rapides restent musicales : un scintillement de haut-parleur tournant plutôt qu'un son faux.",
-              "En DIN., ce filtrage est environ trois fois plus rapide : le balayage léger reste presque triangulaire à toutes les vitesses.",
+              "et s'adoucit (environ 3,5 à 4,8 ms à 6 Hz). Les vitesses rapides restent musicales : un scintillement de haut-parleur tournant plutôt qu'un son faux.",
+              "En DIN., ce filtrage est environ deux fois plus rapide : le balayage léger reste presque triangulaire à toutes les vitesses.",
               "Basculer l'inverseur fait glisser le délai pendant environ une demi-seconde, le temps que le 10 µF se recharge, comme sur la pédale."])
 gr = Table([[img(os.path.join(ASSETS, "graph_rate.png"), W / 2 - 3 * mm), img(os.path.join(ASSETS, "graph_delay.png"), W / 2 - 3 * mm)]], colWidths=[W / 2, W / 2])
 gr.setStyle(TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0)]))
@@ -290,7 +290,7 @@ tech = [["Format", "VST3 - Windows 64 bits, macOS universel (Apple Silicon + Int
         ["Pédale d'origine", "Electro-Harmonix Small Clone (EH-4600)"],
         ["Canaux", "mono vers stéréo, stéréo vers stéréo"],
         ["LFO", "intégrateur LM358 (2,2 µF) + comparateur à hystérésis (120k / 470k), triangle 0,86 - 2,79 V, 0,42 - 9,4 Hz"],
-        ["Retard", "BBD MN3207, 1024 étages, horloge environ 85 - 195 kHz, délai 1024 / (2 f) environ 2,6 - 6 ms"],
+        ["Retard", "BBD MN3207, 1024 étages, horloge environ 75 - 200 kHz, délai 1024 / (2 f) environ 2,6 - 6,5 ms"],
         ["Filtres", "anti-repliement 4e ordre ~6,2 kHz, reconstruction ~5,6 kHz, passe-haut 70 Hz sur le signal traité"],
         ["Mix", "direct + retardé 50 / 50, niveau compensé ; fondu de bypass 10 ms ; latence 0"],
         ["Fréquences", "44,1 - 192 kHz (LFO indépendant de la fréquence d'échantillonnage)"],

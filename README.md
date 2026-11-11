@@ -56,12 +56,12 @@ Shimmer Clean, Warble, Bass Chorus (programmes VST3). Clic droit → 9 presets u
 ## Fonctionnement (résumé)
 - **LFO** : intégrateur LM358 + 2,2 µF et comparateur à hystérésis 120k/470k : triangle 0,86 → 2,79 V,
   résistance de charge = potard 1M log + 47k.
-- **DEPTH** : sortie LFO → 4,7k → nœud 10 µF → 39k → horloge. DIN. = 2,7k à la masse (diviseur ×0,37 + filtre rapide).
-- **Horloge + BBD** : ≈ 85 → 195 kHz, délai 1024 / (2·f) ≈ 2,6 → 6 ms ; filtres anti-repliement et de
+- **DEPTH** : sortie LFO → 4,7k → nœud 10 µF → 39k → horloge. DIN. = shunt à la masse (diviseur ×0,53 + filtre plus rapide).
+- **Horloge + BBD** : ≈ 75 → 200 kHz, délai 1024 / (2·f) ≈ 2,6 → 6,5 ms ; filtres anti-repliement et de
   reconstruction ~6 kHz, saturation douce du MN3207, léger souffle.
 - **Mix** : sec + retardé à parts égales, niveau compensé.
 
-Notice d'utilisation (français) : `docs/SmallTone_Notice_FR_v2.0.0.pdf`. Polices Poppins et Barlow Condensed (licence SIL OFL).
+Notice d'utilisation (français) : `docs/SmallTone_Notice_FR_v2.0.1.pdf`. Polices Poppins et Barlow Condensed (licence SIL OFL).
 
 ## Versions
 - v1.1.0 : anti-gel v2 (JUCE 8.0.15, caches refaits par le timer, chien de garde, aucun appel à l'hôte depuis le thread audio)
@@ -72,3 +72,4 @@ Notice d'utilisation (français) : `docs/SmallTone_Notice_FR_v2.0.0.pdf`. Police
 - v2.0.0 : pédale entièrement refaite (image 1235 × 1800 plein cadre, pièces photo, jacks sur le dessus, sérigraphie vectorielle Poppins,
   bevel des plaques), halo du footswitch façon Octopus, réglage Glow 25 / 50 / 75 / 100 %, pastille presets / ligne d'état unique,
   menus clic droit style Octopus, notice en français
+- v2.0.1 : chorus plus présent (balayage DEPTH ≈ 3 → 6,3 ms, DIN. deux fois plus marqué, signal traité au même niveau que le direct)
