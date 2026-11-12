@@ -14,8 +14,6 @@ plaques noires biseautées, pièces photo, jacks sur le dessus), halos réglable
   <a href="https://github.com/Nine-Hands-Dsp/Small-Tone/releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/Nine-Hands-Dsp/Small-Tone?label=derni%C3%A8re%20version&color=919496"></a>
 </p>
 
-<p align="center"><img src="design/preview.png" width="360" alt="Small Tone"></p>
-
 ## Compiler avec GitHub
 Un push sur `main` lance l'onglet **Actions** → *Build Small Tone VST3 (Windows + macOS)* : test du moteur chorus
 (`dsp_test.cpp`), builds Windows et macOS, puis publication dans **Releases** (`SmallTone-VST3-Windows.zip`,
