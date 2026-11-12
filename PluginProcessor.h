@@ -68,6 +68,7 @@ public:
     std::atomic<int> learnTarget { -1 };      // commande en attente d'un CC (-1 = pas de learn)
     std::atomic<int> lastLearned { -1 };      // pour l'affichage
     void resetMidiMap();                      // efface toutes les assignations
+    std::atomic<int> uiSizeIdx { -1 };       // taille choisie au menu pour ce projet (0..2), -1 = taille par defaut choisie
     std::atomic<int> uiHeight { 0 };          // 0 = aucune taille enregistrée pour cette instance (taille par défaut choisie)
 
     // ----- infos pour l'interface

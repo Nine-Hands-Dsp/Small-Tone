@@ -4,6 +4,7 @@
 #include "PluginProcessor.h"
 #include "Layout.h"
 #include "NineHandsMenu.h"
+#include "NineHandsWindow.h"
 
 //==============================================================================
 // SMALL TONE v2 (NINE HANDS | DSP) : pedale simple, fond 1235 x 1800 px plein cadre (repere 617,5 x 900, Layout.h).
@@ -61,6 +62,9 @@ private:
     void stepPreset (int delta);
     void showPresetMenu();
     void showContextMenu (int learnIdx = -1);
+public:
+    juce::PopupMenu buildContextMenu (int learnIdx = -1);   // menu clic droit (aussi pour l'outil de controle des menus)
+private:
     void askUserPresetName (int slot);
     void buildPrint();
 
@@ -72,6 +76,7 @@ private:
 
     SmallToneProcessor& proc;
     NineHandsMenu::MenuLnf menuLnf;
+    NineHandsWindow::HostLock hostLock;    // fenetre du DAW : jamais sous 60 %, jamais au-dela de 150 %
     juce::Typeface::Ptr mediumFace, boldFace, lightFace, regularFace;
     std::unique_ptr<juce::Drawable> logo;
     juce::Path printPath, titlePath, syncPath;      // serigraphie (unites du plugin) ; titre SMALL TONE (contour violet) ; SYNC

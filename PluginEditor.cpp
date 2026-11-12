@@ -43,13 +43,12 @@ SmallToneEditor::SmallToneEditor (SmallToneProcessor& p)
     // taille : 493 px par defaut (« 60 % ») = taille minimale, proportions bloquees ;
     // ouverture a la taille enregistree pour cette instance, sinon a la taille par defaut choisie dans le menu
     const double aspect = (double) baseW / (double) baseH;
-    const int saved = proc.uiHeight.load();
-    const int h0 = saved > 0 ? jlimit (stui::heightDefault, stui::heightMax, saved)
-                             : sizeHeight (WigaWindowSize::defaultIndex (JucePlugin_Name, numSizes));
+    const int h0 = sizeHeight (NineHandsWindow::openIndex (JucePlugin_Name, proc.uiSizeIdx.load(), numSizes));
     setResizable (true, true);
     setResizeLimits (roundToInt (stui::heightDefault * aspect), stui::heightDefault,
                      roundToInt (stui::heightMax * aspect), stui::heightMax);
     getConstrainer()->setFixedAspectRatio (aspect);
+    hostLock.setLimits (roundToInt (stui::heightDefault * aspect), stui::heightDefault, roundToInt (stui::heightMax * aspect), stui::heightMax);
     setOpaque (true);
     openHeight = h0;
     setSize (roundToInt (h0 * aspect), h0);
@@ -89,7 +88,7 @@ void SmallToneEditor::useSoftwareRenderer()
    #endif
 }
 
-void SmallToneEditor::parentHierarchyChanged() { useSoftwareRenderer(); }
+void SmallToneEditor::parentHierarchyChanged() { useSoftwareRenderer(); hostLock.track (*this); }
 void SmallToneEditor::visibilityChanged()      { useSoftwareRenderer(); if (isShowing()) repaint(); }
 
 float SmallToneEditor::physicalScale() const
@@ -106,9 +105,7 @@ void SmallToneEditor::askRepaint (Rectangle<float> u)
 
 void SmallToneEditor::resized()
 {
-    // jamais de setSize ici ; taille de l'instance enregistree seulement si elle a ete changee
-    if (proc.uiHeight.load() > 0 || (openHeight > 0 && std::abs (getHeight() - openHeight) > 2))
-        proc.uiHeight.store (jlimit (stui::heightDefault, stui::heightMax, getHeight()));
+    // jamais de setSize ici ; seules les tailles choisies au menu sont enregistrees (pas celles tirees au coin)
     resizeSettle = 4;
 }
 
@@ -122,6 +119,7 @@ void SmallToneEditor::setWindowHeight (int h)
 {
     h = jlimit (stui::heightDefault, stui::heightMax, h);
     setSize (roundToInt ((double) h * baseW / baseH), h);
+    hostLock.enforce();
 }
 
 void SmallToneEditor::rebuildCaches (float sc)
@@ -254,6 +252,7 @@ void SmallToneEditor::timerCallback()
 {
     const double now = Time::getMillisecondCounterHiRes();
     if (getPeer() != lastPeer || now - lastRendererCheckMs > 1000.0) { lastRendererCheckMs = now; useSoftwareRenderer(); }
+    hostLock.track (*this);
     if (resizeSettle > 0 && --resizeSettle == 0) rebuildCaches();
     else if (resizeSettle == 0 && now - lastScaleCheckMs > 250.0)
     {
@@ -662,7 +661,7 @@ void SmallToneEditor::showPresetMenu()
 //==============================================================================
 // Menu clic droit (design d'Octopus, NineHandsMenu.h), toujours ouvert a l'endroit du clic
 //==============================================================================
-void SmallToneEditor::showContextMenu (int learnIdx)
+PopupMenu SmallToneEditor::buildContextMenu (int learnIdx)
 {
     using namespace NineHandsMenu;
     PopupMenu menu;
@@ -671,42 +670,17 @@ void SmallToneEditor::showContextMenu (int learnIdx)
     const int lt = proc.learnTarget.load();
     if (learnIdx >= 0)
     {
+        // menu d'une commande (tronc commun) : en-tete, MIDI Learn, Clear MIDI, Cancel MIDI learn
         const String name = SmallToneProcessor::learnDef (learnIdx).name;
         const int ico = learnIdx == 0 ? icoPedal : learnIdx == 1 ? icoKnob : learnIdx == 2 ? icoSwitch : icoSettings;
         addHeader (menu, menuLnf.f, ico, menuAccent, name, "MIDI: " + ccText (learnIdx));
         menu.addItem (1000 + learnIdx, "MIDI Learn: " + name, true, lt == learnIdx);
         menu.addItem (1100 + learnIdx, "Clear MIDI: " + name, proc.ccMap[learnIdx].load() >= 0);
-        if (lt >= 0) menu.addItem (1200, "Cancel MIDI learn");
-        menu.addSeparator();
+        menu.addItem (1200, "Cancel MIDI learn", lt >= 0);
+        return menu;
     }
-    else
-        addHeader (menu, menuLnf.f, icoPedal, menuAccent, "Small Tone", "Analog chorus  v" + String (JucePlugin_VersionString));
 
-    PopupMenu sizes, defSizes;
-    {
-        const char* names[numSizes] = { "60 %", "75 %", "100 %" };
-        const int def = WigaWindowSize::defaultIndex (JucePlugin_Name, numSizes);
-        for (int i = 0; i < numSizes; ++i)
-        {
-            sizes.addItem (1 + i, String (names[i]) + (i == def ? "  (default)" : ""), true, std::abs (getHeight() - sizeHeight (i)) <= 2);
-            defSizes.addItem (20 + i, names[i], true, i == def);
-        }
-        sizes.addSeparator();
-        sizes.addSubMenu ("Default size (new windows)", defSizes);
-    }
-    menu.addSubMenu ("Plugin size", sizes);
-    PopupMenu glowM;                   // reglage du halo des lumieres (regle des skills, nov. 2026)
-    {
-        const int now = roundToInt (glow * 100.0f);
-        for (int i = 0; i < NineHandsGlow::numSteps; ++i)
-        {
-            const int pc = NineHandsGlow::steps[i];
-            glowM.addItem (60 + i, "Glow " + String (pc) + " %" + (pc == 100 ? "  (default)" : ""), true, now == pc);
-        }
-    }
-    menu.addSubMenu ("Glow (halo of the lights)", glowM);
-    menu.addSeparator();
-
+    addHeader (menu, menuLnf.f, icoPedal, menuAccent, "Small Tone", "Analog chorus  v" + String (JucePlugin_VersionString));
     PopupMenu factory;
     const auto& fp = SmallToneProcessor::factoryPresets();
     for (int i = 0; i < (int) fp.size(); ++i)
@@ -716,8 +690,8 @@ void SmallToneEditor::showContextMenu (int learnIdx)
     for (int s = 1; s <= 9; ++s)
     {
         const auto n = proc.userPresetName (s);
-        load.addItem (200 + s, "User " + String (s) + (n.isNotEmpty() ? "  " + n : String ("  (empty)")), n.isNotEmpty());
-        save.addItem (300 + s, "User " + String (s) + (n.isNotEmpty() ? "  " + n + "  (overwrite)" : String()));
+        load.addItem (200 + s, "User " + String (s) + (n.isNotEmpty() ? " : " + n : String ("  (empty)")), n.isNotEmpty());
+        save.addItem (300 + s, "User " + String (s) + (n.isNotEmpty() ? " : " + n + "  (overwrite)" : String()));
     }
     menu.addSubMenu ("Load user preset", load);
     menu.addSubMenu ("Save user preset", save);
@@ -730,27 +704,32 @@ void SmallToneEditor::showContextMenu (int learnIdx)
     settings.addItem (503, "BBD hiss (analog noise floor)", true, flag ("noise"));
     settings.addItem (504, "Rate ring pulses with the LFO", true, flag ("ringlfo"));
     menu.addSubMenu ("Settings", settings);
+    menu.addSeparator();
 
-    PopupMenu midi, chan;
-    const int ch = (int) proc.apvts.getRawParameterValue ("midichan")->load();
-    chan.addItem (600, "MIDI channel omni", true, ch == 0);
-    for (int c = 1; c <= 16; ++c) chan.addItem (600 + c, "MIDI channel " + String (c), true, ch == c);
-    midi.addSubMenu ("MIDI channel", chan);
+    PopupMenu midi;
     midi.addSectionHeader ("MIDI Learn");
     for (int i = 0; i < SmallToneProcessor::numLearn; ++i)
         midi.addItem (1000 + i, "Learn: " + String (SmallToneProcessor::learnDef (i).name) + "  (" + ccText (i) + ")", true, lt == i);
     midi.addSeparator();
-    if (lt >= 0) midi.addItem (1200, "Cancel MIDI learn");
+    midi.addItem (1200, "Cancel MIDI learn", lt >= 0);
     midi.addItem (1201, "Clear all MIDI assignments");
     midi.addSeparator();
-    const bool mom = flag ("ccmomentary");
-    midi.addItem (710, "MIDI footswitch latching (127 = on / 0 = off)", true, ! mom);
-    midi.addItem (711, "MIDI footswitch momentary (toggle each press)", true, mom);
-    midi.addItem (911, "Program Change 1-" + String ((int) fp.size()) + "  Factory presets", false);
+    NineHandsWindow::addMidiFootswitchMode (midi, ! flag ("ccmomentary"));
+    midi.addSeparator();
+    NineHandsWindow::addProgramChangeInfo (midi);
     menu.addSubMenu ("MIDI", midi);
     menu.addSeparator();
-    menu.addItem (999, "Small Tone v" + String (JucePlugin_VersionString) + "  NINE HANDS | DSP", false);
 
+    const char* names[numSizes] = { "60 %", "75 %", "100 %" };
+    const int heights[numSizes] = { sizeHeight (0), sizeHeight (1), sizeHeight (2) };
+    menu.addSubMenu ("Plugin size", NineHandsWindow::sizeMenu (JucePlugin_Name, numSizes, names, heights, getHeight()));
+    menu.addSubMenu ("Glow intensity", NineHandsWindow::glowMenu (roundToInt (glow * 100.0f)));
+    return menu;
+}
+
+void SmallToneEditor::showContextMenu (int learnIdx)
+{
+    auto menu = buildContextMenu (learnIdx);
     menu.showMenuAsync (PopupMenu::Options().withMousePosition(),       // toujours la ou l'on clique
         [safe = Component::SafePointer<SmallToneEditor> (this)] (int r)
         {
@@ -758,18 +737,11 @@ void SmallToneEditor::showContextMenu (int learnIdx)
             auto& ed = *safe;
             auto& pr = ed.proc;
             auto toggleFlag = [&] (const char* id) { ed.setParam (id, pr.apvts.getRawParameterValue (id)->load() > 0.5f ? 0.0f : 1.0f); };
-            if      (r >= 1 && r < 1 + numSizes) ed.setWindowHeight (sizeHeight (r - 1));
-            else if (r >= 20 && r < 20 + numSizes)
-            {
-                WigaWindowSize::setDefaultIndex (JucePlugin_Name, r - 20);
-                ed.setWindowHeight (sizeHeight (r - 20));
-            }
-            else if (r >= 60 && r < 60 + NineHandsGlow::numSteps)
-            {
-                ed.setGlowPercent (NineHandsGlow::steps[r - 60]);
-                ed.flash ("Glow  " + String (NineHandsGlow::steps[r - 60]) + " %");
-            }
-            else if (r >= 100 && r < 200)
+            int inst = pr.uiSizeIdx.load();
+            const int sz = NineHandsWindow::handleSize (r, JucePlugin_Name, numSizes, inst);
+            if (sz >= 0) { pr.uiSizeIdx = inst; ed.setWindowHeight (sizeHeight (sz)); return; }
+            if (const int pc = NineHandsWindow::handleGlow (r, JucePlugin_Name)) { ed.setGlowPercent (pc); ed.flash ("Glow  " + String (pc) + " %"); return; }
+            if (r >= 100 && r < 200)
             {
                 pr.setCurrentProgram (r - 100);
                 pr.updateHostDisplay (AudioProcessor::ChangeDetails().withProgramChanged (true));
@@ -780,8 +752,7 @@ void SmallToneEditor::showContextMenu (int learnIdx)
             else if (r == 502) { toggleFlag ("stereo"); ed.flash (pr.apvts.getRawParameterValue ("stereo")->load() > 0.5f ? "Stereo spread" : "Mono (original)"); }
             else if (r == 503) toggleFlag ("noise");
             else if (r == 504) toggleFlag ("ringlfo");
-            else if (r >= 600 && r <= 616) ed.setParam ("midichan", (float) (r - 600));
-            else if (r == 710 || r == 711) ed.setParam ("ccmomentary", r == 711 ? 1.0f : 0.0f);
+            else if (r == NineHandsWindow::idLatch || r == NineHandsWindow::idMomentary) ed.setParam ("ccmomentary", r == NineHandsWindow::idMomentary ? 1.0f : 0.0f);
             else if (r >= 1000 && r < 1000 + SmallToneProcessor::numLearn)
             {
                 const int t = r - 1000;

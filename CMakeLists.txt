@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "")
 
-project(SmallTone VERSION 2.0.1 LANGUAGES C CXX)
+project(SmallTone VERSION 2.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -63,6 +63,17 @@ target_sources(SmallTone PRIVATE
   PluginProcessor.cpp
   PluginEditor.cpp)
 
+
+# verrou de taille de la fenetre du DAW (jamais sous 60 %, jamais au-dela de 150 %)
+if(APPLE)
+  target_sources(SmallTone PRIVATE WindowMinSize.mm)
+  target_link_libraries(SmallTone PRIVATE "-framework Cocoa")
+else()
+  target_sources(SmallTone PRIVATE WindowMinSize.cpp)
+endif()
+if(WIN32)
+  target_link_libraries(SmallTone PRIVATE comctl32 user32)
+endif()
 if(MSVC)
   target_compile_options(SmallTone PRIVATE /utf-8)
 endif()

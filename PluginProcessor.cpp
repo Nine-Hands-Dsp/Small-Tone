@@ -288,7 +288,7 @@ void SmallToneProcessor::getStateInformation (MemoryBlock& dest)
     std::unique_ptr<XmlElement> xml (state.createXml());
     for (int i = 0; i < numLearn; ++i)
         xml->setAttribute (learnDef (i).key, ccMap[i].load());     // -1 = non assigné
-    if (uiHeight.load() > 0) xml->setAttribute ("uiHeight", uiHeight.load());
+    xml->setAttribute ("uiSize", uiSizeIdx.load());
     xml->setAttribute ("presetName", presetName);
     xml->setAttribute ("program", currentProgram);
     copyXmlToBinary (*xml, dest);
@@ -310,6 +310,11 @@ void SmallToneProcessor::setStateInformation (const void* data, int size)
             {
                 const int uh = xml->getIntAttribute ("uiHeight", 0);    // absent = taille par défaut choisie dans le menu
                 uiHeight = uh > 0 ? jlimit (stui::heightDefault, stui::heightMax, uh) : 0;
+                // taille du menu (v2.1.0) ; ancien projet : sa hauteur enregistree si c'est une des trois tailles du menu
+                int idx = -1;
+                const int hs[3] = { stui::heightDefault, stui::height75, stui::height100 };
+                for (int i = 0; i < 3; ++i) if (uh > 0 && std::abs (uh - hs[i]) <= 2) idx = i;
+                uiSizeIdx = jlimit (-1, 2, xml->getIntAttribute ("uiSize", idx));
             }
             presetName = xml->getStringAttribute ("presetName");
             currentProgram = xml->getIntAttribute ("program", 0);
